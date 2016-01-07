@@ -47,6 +47,43 @@ class GDSms
          * @return              TRUE is all data set
          */
         bool isReady();
+
+        /**
+         * Parse message for internal processing.
+         * It work like strtok with ' '. Set also the first element to
+         * uppercase. This is the command to GPSDog.
+         *
+         * @return              Count of parsed elements
+         */
+        uint8_t parseSMSMessage();
+
+        /**
+         * Get a element of the parsed message.
+         * @see parseSMSMessage();
+         *
+         * @param idx           The element they will have
+         * @return              A pointer to this element in message
+         */
+        char* getParseElement(uint8_t idx);
+
+        /**
+         * Get a element of the parsed message as Uppercase.
+         * @see parseSMSMessage();
+         *
+         * @param idx           The element they will have
+         * @return              A pointer to element or NULL
+         */
+        char* getParseElementUpper(uint8_t idx);
+
+        /**
+         * Extract GPSDog command from message.
+         * Use first @see parseSMSMessage!
+         *
+         * @return              The parsed GPSDog SMS command
+         */
+        char* getSMSCommand() {
+            return &m_message[0];
+        }
 };
 
 #endif

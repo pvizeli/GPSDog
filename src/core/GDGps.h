@@ -6,8 +6,8 @@
 
 // data size
 // the real size is SIZE+1 for char buffer
-#define GPSDOG_GPS_DATE_SIZE 6
-#define GPSDOG_GPS_TIME_SIZE 8
+#define GPSDOG_GPS_DATE_SIZE 10
+#define GPSDOG_GPS_TIME_SIZE 5
 
 /**
  * Object for store gps data
@@ -23,24 +23,15 @@ class GDGps
         /** Longitude */
         double m_longitude;
 
-        /** Altidue */
-        double m_altitude;
-
         /** Speed */
         double m_speed;
 
-        /** Date in format YYYYMMDD */
+        /** Date in format YYYY-MM.DD */
         char m_date[GPSDOG_GPS_DATE_SIZE +1];
 
-        /** Time in format HHMMSS.S */
+        /** Time in format HH:MM */
         char m_time[GPSDOG_GPS_TIME_SIZE +1];
         
-        /** N/S */
-        char m_latPos;
-
-        /** W/E */
-        char m_longPos;
-
         /**
          * Copy Date and Time string to own buffer.
          *
@@ -51,10 +42,40 @@ class GDGps
 
         /**
          *
+         * It use a buffer size of 54 byte.
          *
-         * S (lat) / W (long) * -1
          */
-        bool createGoolgeMapLink(char *buffer, uint8_t size);
+        uint8_t getGoolgeMapLink(char *buffer, uint8_t size);
+
+        /**
+         * Convert Latitude to a string.
+         * Buffer Size need to 11 char without '0'.
+         *
+         * @param buffer            Buffer to Copy latitude
+         * @param size              Max Size of buffer
+         * @return                  Char they have written to buffer
+         */
+        uint8_t getLatitude(char *buffer, uint8_t size);
+
+        /**
+         * Convert longitude to a string.
+         * Buffer Size need to 11 char without '0'.
+         *
+         * @param buffer            Buffer to Copy longitude
+         * @param size              Max Size of buffer
+         * @return                  Char they have written to buffer
+         */
+        uint8_t getLongitude(char *buffer, uint8_t size);
+
+        /**
+         * Convert speed to a string.
+         * Buffer Size need to 6 char without '0'.
+         *
+         * @param buffer            Buffer to Copy speed
+         * @param size              Max Size of buffer
+         * @return                  Char they have written to buffer
+         */
+        uint8_t getSpeed(char *buffer, uint8_t size);
 };
 
 

@@ -19,6 +19,12 @@ bool GDSms::isReady()
     return true;
 }
 
+void cleanSMS()
+{
+    memset(m_number, 0x00, m_numberSize);
+    memset(m_message, 0x00, m_messageSize);
+}
+
 bool GDSms::setNumber(char *number)
 {
     // check is all things okay

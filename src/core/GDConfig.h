@@ -15,7 +15,7 @@
 
 // mode
 #define GPSDOG_MODE_INIT 0x01
-#define GPSDOG_MODE_DOG 0x02
+#define GPSDOG_MODE_WATCH 0x02
 #define GPSDOG_MODE_ALARM 0x04
 #define GPSDOG_MODE_PROTECT 0x08
 
@@ -61,11 +61,12 @@ class GDConfig
         /** */
         GD_DATA m_data;
 
+    public:
+
+        GDConfig();
+
         /** */
         char *m_numbers[GPSDOG_CONF_NUMBER_STORE];
-
-    public:
-        GDConfig();
 
         /**
          *
@@ -80,12 +81,17 @@ class GDConfig
         /**
          *
          */
-        bool setNumber(uint8_t numStoreIdx, char *num);
+        bool setStoreNumber(uint8_t numStoreIdx, char *num);
 
         /**
          *
          */
-        bool checkNumber(uint8_t numStoreIdx, char *num);
+        bool checkStoreNumber(uint8_t numStoreIdx, char *num);
+
+        /**
+         *
+         */
+        bool foundNumberInStore(char *num);
 
         /**
          *

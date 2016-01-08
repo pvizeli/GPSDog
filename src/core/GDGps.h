@@ -2,8 +2,6 @@
 #ifndef GDGPS_H
 #define GDGPS_H
 
-#define GSPDOG_GPS_GOOGLE_URL PSTR("https://www.google.com/maps?q=%s,%s")
-
 // data size
 // the real size is SIZE+1 for char buffer
 #define GPSDOG_GPS_DATE_SIZE 10
@@ -15,6 +13,7 @@
 class GDGps
 {
     public:
+
         GDGps()
 
         /** Latitude */
@@ -39,13 +38,6 @@ class GDGps
          * @param time              Time String
          */
         void copyDateTime(char *date, char *time);
-
-        /**
-         *
-         * It use a buffer size of 54 byte.
-         *
-         */
-        uint8_t getGoolgeMapLink(char *buffer, uint8_t size);
 
         /**
          * Convert Latitude to a string.

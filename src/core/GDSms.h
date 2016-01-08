@@ -24,14 +24,9 @@ class GDSms
         uint8_t m_messageSize;
 
         /**
-         * Callback for sending SMS with GPSDog
+         * Cleaning all SMS Data buffers.
          */
-        bool (*sendSMS);
-
-        /**
-         * Callback for cleaning all SMS Data buffers
-         */
-        void (*cleanUp);
+        void cleanSMS();
 
         /**
          * Set a phone number to buffer.

@@ -62,7 +62,7 @@ void GDConfig::cleanConfig()
     memset(m_data.m_password, 0x00, GPSDOG_CONF_PW_SIZE +1);
 }
 
-bool GDConfig::setNumber(uint8_t numStoreIdx, char *num)
+bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num)
 {
     // index secure
     if (strlen(num) > GPSDOG_CONF_NUM_SIZE || numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
@@ -78,7 +78,7 @@ bool GDConfig::setNumber(uint8_t numStoreIdx, char *num)
     return true;
 }
 
-bool GDConfig::checkNumber(uint8_t numStoreIdx, char *num)
+bool GDConfig::checkStoreNumber(uint8_t numStoreIdx, char *num)
 {
     // index secure
     if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
@@ -86,10 +86,25 @@ bool GDConfig::checkNumber(uint8_t numStoreIdx, char *num)
     }
 
     // check number
-    if (strncmp(m_numbers[numStoreIdx], num, GPSDOG_CONF_NUM_SIZE) > 0) {
+    if (strstr(m_numbers[numStoreIdx], num, GPSDOG_CONF_NUM_SIZE) != NULL) {
         return true;
     }
 
+    return false;
+}
+
+bool GDConfig::foundNumberInStore(char *num)
+{
+    // search in store numbers 
+    for (uint8_t i = 0; i < GPSDOG_CONF_NUMBER_STORE; i++) {
+
+        // compare number
+        if (this->checkStoreNumber(i, num)) {
+            return true;
+        }
+    }
+
+    // not found
     return false;
 }
 

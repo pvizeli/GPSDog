@@ -28,8 +28,8 @@ void GDConfig::readConfig()
         this->cleanConfig();
     }
     else {
-        // reset Mode for only save init
-        m_data.m_mode &= GPSDOG_MODE_INIT;
+        // reset Alarm after reload
+        m_data.m_mode ^= GPSDOG_MODE_ALARM;
     }
 }
 
@@ -108,6 +108,23 @@ bool GDConfig::foundNumberInStore(char *num)
     return false;
 }
 
+bool GDConfig::addNumberWithNotify(uint8_t numStoreIdx, char *num, bool notify)
+{
+    // index secure
+    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
+        return false;
+    }
+
+    // set number to store
+    if (!this->setStoreNumber(numStoreIdx, num)) {
+        return false;
+    }
+
+    // set Notify flag
+    this->setAlarmNotify(numStoreIdx, notify);
+
+    return true;
+}
 
 bool GDConfig::isAlarmNotifyOn(uint8_t numStoreIdx)
 {

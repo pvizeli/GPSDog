@@ -57,7 +57,63 @@ void GPSDog::mainProcessing()
 
 void GPSDog::processIncomingSMS()
 {
+    char    *smsCmd;
+    uint8_t count;
+    bool    legalNum;
 
+    // If Protect mode active
+    legalNum = this->foundNumberInStore(m_number);
+
+    ////
+    // Parse Data
+    count   = this->parseSMSMessage();
+    smsCmd  = this->getSMSCommand();
+
+    ////
+    // Find Master command
+
+    // STATUS
+    if (strncmp_P(smsCmd, GPSDOG_TXT_STATUS, 6) && count == 0) {
+        // check modus for legal number or protected is off
+        if (legalNum || !this->isModeOn(GPSDOG_MODE_PROTECT)) {
+            this->createStatusSMS();
+        }
+    }
+    // INIT pw number ON/OFF
+    else if (strncmp_P(smsCmd, GPSDOG_TXT_INIT, 4) && count == 3) {
+        this->readInitFromSMS(GPSDOG_MODE_ALARM);
+    }
+    // RESET pw
+    else if (strncmp_P(smsCmd, GPSDOG_TXT_RESET, 5) && count == 1) {
+        this->readResetFromSMS();
+    }
+    // STORE num ADD number ON/OFF
+    // STORE num DEL
+    // STORE num SHOW
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_STORE, 5) && count >= 2) {
+        this->readStoreFromSMS();
+    }
+    // ALARM ON/OFF
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_ALARM, 5) && count == 1) {
+        this->readModeFromSMS(GPSDOG_MODE_ALARM);
+    }
+    // WATCH ON/OFF
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_WATCH, 5) && count == 1) {
+        this->readModeFromSMS(GPSDOG_MODE_WATCH);
+    }
+    // PROTECT ON/OFF
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_PROTECT, 7) && count == 1) {
+        this->readModeFromSMS(GPSDOG_MODE_PROTECT);
+    }
+    else {
+        this->createDefaultSMS(GPSDOG_OPT_SMS_UNKNOWN);
+    }
+
+    ////
+    // Send Answer
+    for (uint8_t i = 0; !this->sendSMS() && i < GPSDOG_TRY_SENDSMS; i++) {
+        delay(GPSDOG_WAIT_SENDSMS);
+    }
 }
 
 void GPSDog::updateGPSData(double latitude, double longitude, double speed, char *date, char *time)
@@ -104,8 +160,9 @@ void GPSDog::sendAlarmSMS()
         // Alarm Notify is On
         if (this->isAlarmNotifyOn(i)) {
             // Send Status SMS
-            this->setNumber(m_numbers[i]);
-            this->cb_sendSMS();
+            if(this->setNumber(m_numbers[i])) {
+                this->cb_sendSMS();
+            }
         }
     }
 
@@ -136,8 +193,10 @@ void GPSDog::createStatusSMS()
     char speed[6];
     char stat[7];
 
-    // init buffers
-    this->cleanSMS();
+    // init buffer sms text
+    if (!this->cleanSMS()) {
+        return;
+    }
 
     // convert value
     this->getLatitude(lat, 12);
@@ -160,6 +219,125 @@ void GPSDog::createStatusSMS()
     ////
     // create SMS Text
     snprintf_P(m_message, m_messageSize, GPSDOG_SMS_STATUS, stat, lat, lon, speed, m_date, m_time, lat, lon);
+}
+
+void GPSDog::createDefaultSMS(uint8_t msgOpt)
+{
+    // init buffer sms text
+    if (!this->cleanSMS()) {
+        return;
+    }
+
+    switch (msgOpt) {
+        case GPSDOG_OPT_SMS_DONE :
+            strncpy_P(m_message, GPSDOG_SMS_DONE, m_messageSize);
+            break;
+        case GPSDOG_OPT_SMS_ERROR :
+            strncpy_P(m_message, GPSDOG_SMS_SYSERROR, m_messageSize);
+            break;
+        case GPSDOG_OPT_SMS_UNKNOWN :
+            strncpy_P(m_message, GPSDOG_SMS_UNKNOWN, m_messageSize);
+            break;
+    }
+}
+
+bool GPSDog::parseOnOff(uint8_t idx)
+{
+    char *onOff = this->getParseElementUpper(idx);
+
+    // ON
+    if (strncmp_P(onOff, GPSDOG_TXT_ON, 2) == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+void GPSDog::readModeFromSMS(uint8_t mode)
+{
+    // set mode
+    this->setMode(mode, this->parseOnOff(1));
+
+    // if mode unlike ALARM, write status change to eeprom
+    if (mode ^ GPSDOG_MODE_ALARM != 0x00) {
+        this->writeConfig();
+    }
+
+    // create SMS answer
+    this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
+}
+
+void GPSDog::readInitFromSMS()
+{
+    char *pw            = this->getParseElement(1);
+    char *number        = this->getParseElement(2);
+    bool alarmNotify    = this->parseOnOff(3);
+
+    // allready init
+    if (this->isModeOn(GPSDOG_MODE_INIT)) {
+        goto Error;
+    }
+
+    // set number to first store
+    if (!this->addNumberWithNotify(0, number, alarmNotify)) {
+        goto Error;
+    }
+
+    // write passwort
+    if (!this->setPasswordInit(pw)) {
+        goto Error;
+    }
+
+    // write config
+    this->writeConfig();
+    return;
+
+Error:
+    this->createDefaultSMS(GPSDOG_OPT_SMS_ERROR);
+    return;
+}
+
+void GPSDog::readResetFromSMS()
+{
+    char *pw = this->getParseElement(1);
+
+    // init mode is set and passsword is okay
+    if (!this->isModeOn(GPSDOG_MODE_INIT) || !this->checkPassword(pw)) {
+        this->createDefaultSMS(GPSDOG_OPT_SMS_ERROR);
+        return;
+    }
+
+    // reset config
+    this->cleanConfig();
+
+    // save config
+    this->writeConfig();
+
+    // end
+    this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
+}
+
+void GPSDog::readStoreFromSMS()
+{
+    uint8_t idx     = atoi(this->getParseElement(1));
+    char    *cmd    = this->getParseElementUpper(2);
+
+    // STORE num ADD number ON/OFF
+    if (strncmp_P(cmd, GPSDOG_TXT_ADD, 3) == 0) {
+
+    }
+    // STORE num DEL
+    else if (strncmp_P(cmd, GPSDOG_TXT_DEL, 3) == 0) {
+
+    }
+    // STORE num SHOW
+    else if (strncmp_P(cmd, GPSDOG_TXT_SHOW, 4) == 0) {
+
+    }
+    // ERROR
+    else {
+
+    }
 }
 
 // vim: set sts=4 sw=4 ts=4 et:

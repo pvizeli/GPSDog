@@ -24,9 +24,11 @@ class GDSms
         uint8_t m_messageSize;
 
         /**
-         * Cleaning all SMS Data buffers.
+         * Cleaning SMS Text Data buffer.
+         *
+         * @return              FALSE if no buffer avilable!
          */
-        void cleanSMS();
+        bool cleanSMS();
 
         /**
          * Set a phone number to buffer.
@@ -77,7 +79,7 @@ class GDSms
          * @return              The parsed GPSDog SMS command
          */
         char* getSMSCommand() {
-            return &m_message[0];
+            return getParseElementUpper(0);
         }
 };
 

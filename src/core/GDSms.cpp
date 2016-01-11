@@ -19,10 +19,15 @@ bool GDSms::isReady()
     return true;
 }
 
-void cleanSMS()
+bool cleanSMS()
 {
-    memset(m_number, 0x00, m_numberSize);
+    // buffer is set
+    if (m_message == NULL) {
+        return false;
+    }
+
     memset(m_message, 0x00, m_messageSize);
+    return true;
 }
 
 bool GDSms::setNumber(char *number)
@@ -43,6 +48,11 @@ uint8_t GDSms::parseSMSMessage()
 {
     uint8_t params      = 0;
 
+    // buffer is set
+    if (m_message == NULL) {
+        return params;
+    }
+
     // search hole string
     for (uint8_t i = 0; i < m_messageSize; i++) {
 
@@ -59,11 +69,6 @@ uint8_t GDSms::parseSMSMessage()
         if (m_message[i] == 0x00 && m_message[i-1] != 0x00) {
             params++;
         }
-
-        // GPSDog Command to uppercase
-        if (params == 0) {
-            m_message[i] = toupper(m_message[i]);
-        }
     }
 
     return params;
@@ -72,6 +77,11 @@ uint8_t GDSms::parseSMSMessage()
 char* GDSms::getParseElement(uint8_t idx)
 {
     uint8_t count = 0;
+
+    // buffer is set
+    if (m_message == NULL) {
+        return NULL;
+    }
 
     // search hole string
     for (uint8_t i = 0; i < m_messageSize; i++) {

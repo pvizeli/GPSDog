@@ -19,6 +19,8 @@
 #define GPSDOG_TXT_ALARM PSTR("ALARM")
 #define GPSDOG_TXT_PROTECT PSTR("PROTECT")
 #define GPSDOG_TXT_WATCH PSTR("WATCH")
+#define GPSDOG_TXT_INIT PSTR("INIT")
+#define GPSDOG_TXT_RESET PSTR("RESET")
 #define GPSDOG_TXT_ADD PSTR("ADD")
 #define GPSDOG_TXT_DEL PSTR("DEL")
 #define GPSDOG_TXT_SHOW PSTR("SHOW")
@@ -28,7 +30,8 @@
 #define GPSDOG_SMS_STORESHOW PSTR("Number: %s\x0D\x0A" \
                                   "Alarm: %S")
 #define GPSDOG_SMS_DONE PSTR("Done")
-#define GPSDOG_SMS_UNKOWN PSTR("Command unknown!")
+#define GPSDOG_SMS_UNKNOWN PSTR("Command unknown!")
+#define GPSDOG_SMS_SYSERROR PSTR("System Error!")
 #define GPSDOG_SMS_STATUS PSTR("State: %s\x0D\x0A" \
                                "Lat: %s\x0D\x0A" \
                                "Long: %s\x0D\x0A" \
@@ -36,8 +39,10 @@
                                "Period: %s %s\x0D\x0A" \
                                "https://www.google.com/maps?q=%s,%s")
 
-// Buffer Size
-// String buffer +1
+// opt
+#define GPSDOG_OPT_SMS_DONE 0x01
+#define GPSDOG_OPT_SMS_ERROR 0x02
+#define GPSDOG_OPT_SMS_UNKNOWN 0x03
 
 // config
 #define GPSDOG_TRY_SENDSMS 3
@@ -94,6 +99,36 @@ class GPSDog :
          *
          */
         void createStatusSMS();
+
+        /**
+         *
+         */
+        void createDefaultSMS(uint8_t msgOpt);
+
+        /**
+         *
+         */
+        bool parseOnOff(uint8_t idx);
+
+        /**
+         *
+         */
+        void readModeFromSMS(uint8_t mode);
+
+        /**
+         *
+         */
+        void readInitFromSMS();
+
+        /**
+         *
+         */
+        void readResetFromSMS();
+
+        /**
+         *
+         */
+        void readStoreFromSMS();
 
     public:
 

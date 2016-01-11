@@ -53,11 +53,6 @@ class GDConfig
 {
     private:
 
-        /**
-         *
-         */
-        void cleanConfig();
-
         /** */
         GD_DATA m_data;
 
@@ -67,6 +62,11 @@ class GDConfig
 
         /** */
         char *m_numbers[GPSDOG_CONF_NUMBER_STORE];
+
+        /**
+         *
+         */
+        void cleanConfig();
 
         /**
          *
@@ -92,6 +92,11 @@ class GDConfig
          *
          */
         bool foundNumberInStore(char *num);
+
+        /**
+         *
+         */
+        bool addNumberWithNotify(uint8_t numStoreIdx, char *num, bool notify);
 
         /**
          *

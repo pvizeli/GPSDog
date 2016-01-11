@@ -86,7 +86,7 @@ bool GDConfig::checkStoreNumber(uint8_t numStoreIdx, char *num)
     }
 
     // check number
-    if (strstr(m_numbers[numStoreIdx], num, GPSDOG_CONF_NUM_SIZE) != NULL) {
+    if (strstr(num, m_numbers[numStoreIdx], GPSDOG_CONF_NUM_SIZE) != NULL) {
         return true;
     }
 

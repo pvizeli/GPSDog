@@ -2,6 +2,11 @@
 #ifndef GDSMS_H
 #define GDSMS_H
 
+// includes
+#include <inttypes.h>
+#include <string.h>
+#include <ctype.h>
+
 /**
  * Object for store sms data
  */

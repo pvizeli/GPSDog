@@ -1,17 +1,13 @@
 
 #include "GDGps.h"
 
-void GDGps::GDGps()
+GDGps::GDGps()
 {
     memset(m_date, 0x00, GPSDOG_GPS_DATE_SIZE + 1);
     memset(m_time, 0x00, GPSDOG_GPS_TIME_SIZE + 1);
 
-    m_latPos        ^= m_latPos;
-    m_longPos       ^= m_longPos;
-
     m_latitude      = 0;
     m_longitude     = 0;
-    m_altitude      = 0;
     m_speed         = 0;
 }
 

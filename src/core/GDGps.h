@@ -2,6 +2,11 @@
 #ifndef GDGPS_H
 #define GDGPS_H
 
+// includes
+#include <inttypes.h>
+#include <string.h>
+#include <stdlib.h>
+
 // data size
 // the real size is SIZE+1 for char buffer
 #define GPSDOG_GPS_DATE_SIZE 10

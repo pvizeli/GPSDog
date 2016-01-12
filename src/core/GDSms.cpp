@@ -12,14 +12,14 @@ GDSms::GDSms()
 
 bool GDSms::isReady()
 {
-    if (m_numer == NULL || m_message == NULL || m_numberSize == 0x00 || m_messageSize == 0x00) {
+    if (m_number == NULL || m_message == NULL || m_numberSize == 0x00 || m_messageSize == 0x00) {
         return false;
     }
 
     return true;
 }
 
-bool cleanSMS()
+bool GDSms::cleanSMS()
 {
     // buffer is set
     if (m_message == NULL) {

@@ -70,20 +70,20 @@ class GPSDog :
          * Callback for sending SMS with GPSDog.
          * @return              TRUE / FALSE if message send.
          */
-        bool (*cb_sendSMS);
+        bool (*cb_sendSMS)();
 
         /**
          * Callback for check new SMS. Load every new message and
          * call @see processIncomingSMS. After that you cann delete
          * the SMS.
          */
-        void (*cb_checkNewSMS);
+        void (*cb_checkNewSMS)();
 
         /**
          * Callback for receive GPS Data. If receive Data call 
          * @see updateGPSData for precessing.
          */
-        void (*cb_receiveGPS);
+        void (*cb_receiveGPS)();
 
         /**
          *
@@ -137,7 +137,7 @@ class GPSDog :
         /**
          *
          */
-        void initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS), void (*cbCheckSMS), void (*cbReceiveGPS));
+        void initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReceiveGPS)());
 
         /**
          *

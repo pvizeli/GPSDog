@@ -9,7 +9,7 @@ GPSDog::GPSDog()
     m_nextAlarmSMS  ^= m_nextAlarmSMS;
 }
         
-void GPSDog::initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS), void (*cbCheckSMS), void (*cbReceiveGPS))
+void GPSDog::initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReceiveGPS)())
 {
     // init data
     m_number        = smsNum;

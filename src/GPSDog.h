@@ -54,9 +54,9 @@
  * Object for GPSDog config
  */
 class GPSDog :
-    GDConfig    protected,
-    GDGps       protected,
-    GDSms       protected
+    protected GDConfig,
+    protected GDGps,
+    protected GDSms
 {
     private:
 

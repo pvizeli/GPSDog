@@ -14,7 +14,7 @@ class GDGps
 {
     public:
 
-        GDGps()
+        GDGps();
 
         /** Latitude */
         double m_latitude;

@@ -4,6 +4,8 @@
 
 // includes
 #include <EEPROM.h>
+#include <inttypes.h>
+#include <string.h>
 
 // Buffer Size
 // String buffer +1

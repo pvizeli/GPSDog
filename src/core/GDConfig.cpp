@@ -1,7 +1,7 @@
 
 #include "GDConfig.h"
 
-void GDConfig::GDConfig()
+GDConfig::GDConfig()
 {
     this->readConfig();
 
@@ -15,7 +15,7 @@ void GDConfig::GDConfig()
 
 void GDConfig::readConfig()
 {
-    byte *p = reinterpret_cast<byte*>(&m_data);
+    uint8_t *p = reinterpret_cast<uint8_t*>(&m_data);
 
     // read
     for (uint8_t i = 0; i < sizeof(GD_DATA); )
@@ -35,7 +35,7 @@ void GDConfig::readConfig()
 
 void GDConfig::writeConfig()
 {
-    byte *p = reinterpret_cast<byte*>(&m_data);
+    uint8_t *p = reinterpret_cast<uint8_t*>(&m_data);
 
     // write
     for (uint8_t i = 0; i < sizeof(GD_DATA); )
@@ -86,7 +86,7 @@ bool GDConfig::checkStoreNumber(uint8_t numStoreIdx, char *num)
     }
 
     // check number
-    if (strstr(num, m_numbers[numStoreIdx], GPSDOG_CONF_NUM_SIZE) != NULL) {
+    if (strstr(num, m_numbers[numStoreIdx]) != NULL) {
         return true;
     }
 
@@ -146,7 +146,7 @@ void GDConfig::setAlarmNotify(uint8_t numStoreIdx, bool onOff)
 
     // index secure
     if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
-        return false;
+        return;
     }
 
     if (onOff) {

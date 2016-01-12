@@ -3,7 +3,7 @@
 #include "GPSDog.h"
 
 
-void GPSDog::GPSDog()
+GPSDog::GPSDog()
 {
     m_isInit        = false;
     m_nextAlarmSMS  ^= m_nextAlarmSMS;
@@ -20,7 +20,7 @@ void GPSDog::initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t 
     // callbacks
     cb_sendSMS          = cbSendSMS;
     cb_checkNewSMS      = cbCheckSMS;
-    cb_checkReceiveGPS  = cbReceiveGPS;
+    cb_receiveGPS       = cbReceiveGPS;
 
     // set init flag
     m_isInit        = true;
@@ -45,10 +45,10 @@ void GPSDog::mainProcessing()
         }
 
         // process command sms
-        this->cb_checkNewSMS();
+        this->cb_checkNewSMS;
 
         // processing GPS data
-        this->cb_receiveGPS();
+        this->cb_receiveGPS;
 
         // wait for next process
         delay(GPSDOG_WAIT_PROCESSING);
@@ -81,7 +81,7 @@ void GPSDog::processIncomingSMS()
     }
     // INIT pw number ON/OFF
     else if (strncmp_P(smsCmd, GPSDOG_TXT_INIT, 4) && count == 3) {
-        this->readInitFromSMS(GPSDOG_MODE_ALARM);
+        this->readInitFromSMS();
     }
     // RESET pw
     else if (strncmp_P(smsCmd, GPSDOG_TXT_RESET, 5) && count == 1) {
@@ -111,7 +111,7 @@ void GPSDog::processIncomingSMS()
 
     ////
     // Send Answer
-    for (uint8_t i = 0; !this->sendSMS() && i < GPSDOG_TRY_SENDSMS; i++) {
+    for (uint8_t i = 0; !this->cb_sendSMS && i < GPSDOG_TRY_SENDSMS; i++) {
         delay(GPSDOG_WAIT_SENDSMS);
     }
 }
@@ -161,7 +161,7 @@ void GPSDog::sendAlarmSMS()
         if (this->isAlarmNotifyOn(i)) {
             // Send Status SMS
             if(this->setNumber(m_numbers[i])) {
-                this->cb_sendSMS();
+                this->cb_sendSMS;
             }
         }
     }
@@ -319,25 +319,62 @@ void GPSDog::readResetFromSMS()
 
 void GPSDog::readStoreFromSMS()
 {
-    uint8_t idx     = atoi(this->getParseElement(1));
+    uint8_t idx     = atoi(this->getParseElement(1)) -1;
     char    *cmd    = this->getParseElementUpper(2);
+
+    // Store number in range
+    if (idx >= GPSDOG_CONF_NUMBER_STORE) {
+        goto Error;
+    }
 
     // STORE num ADD number ON/OFF
     if (strncmp_P(cmd, GPSDOG_TXT_ADD, 3) == 0) {
-
+        char *number   = this->getParseElement(3);
+        bool notify    = this->parseOnOff(4);
+    
+        // Ckeck number is set
+        if (number == NULL || !this->addNumberWithNotify(idx, number, notify)) {
+            goto Error;
+        }
+       
+        this->writeConfig();
+        this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
+        return;
     }
     // STORE num DEL
     else if (strncmp_P(cmd, GPSDOG_TXT_DEL, 3) == 0) {
+        // clean number
+        memset(m_numbers[idx], 0x00, GPSDOG_CONF_NUM_SIZE +1);
+        this->setAlarmNotify(idx, false);
 
+        // end
+        this->writeConfig();
+        this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
+        return;
     }
     // STORE num SHOW
     else if (strncmp_P(cmd, GPSDOG_TXT_SHOW, 4) == 0) {
+        char onOff[4];
 
-    }
-    // ERROR
-    else {
+        // init buffer
+        memset(onOff, 0x00, 4);
 
+        // Generate text for alarm Notify
+        if (this->isAlarmNotifyOn(idx)) {
+            strncpy_P(onOff, GPSDOG_TXT_ON, 3);
+        }
+        else {
+            strncpy_P(onOff, GPSDOG_TXT_OFF, 3);
+        }
+
+        // write
+        snprintf_P(m_message, m_messageSize, GPSDOG_SMS_STORESHOW, m_numbers[idx], onOff);
+        return;
     }
+
+Error:
+    this->createDefaultSMS(GPSDOG_OPT_SMS_ERROR);
+    return;
 }
 
 // vim: set sts=4 sw=4 ts=4 et:

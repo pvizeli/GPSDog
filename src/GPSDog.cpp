@@ -45,10 +45,10 @@ void GPSDog::mainProcessing()
         }
 
         // process command sms
-        this->cb_checkNewSMS;
+        this->cb_checkNewSMS();
 
         // processing GPS data
-        this->cb_receiveGPS;
+        this->cb_receiveGPS();
 
         // wait for next process
         delay(GPSDOG_WAIT_PROCESSING);
@@ -111,7 +111,7 @@ void GPSDog::processIncomingSMS()
 
     ////
     // Send Answer
-    for (uint8_t i = 0; !this->cb_sendSMS && i < GPSDOG_TRY_SENDSMS; i++) {
+    for (uint8_t i = 0; !this->cb_sendSMS() && i < GPSDOG_TRY_SENDSMS; i++) {
         delay(GPSDOG_WAIT_SENDSMS);
     }
 }
@@ -161,7 +161,7 @@ void GPSDog::sendAlarmSMS()
         if (this->isAlarmNotifyOn(i)) {
             // Send Status SMS
             if(this->setNumber(m_numbers[i])) {
-                this->cb_sendSMS;
+                this->cb_sendSMS();
             }
         }
     }
@@ -190,7 +190,7 @@ void GPSDog::createStatusSMS()
 {
     char lat[12];
     char lon[12];
-    char speed[6];
+    char speed[7];
     char stat[7];
 
     // init buffer sms text
@@ -201,7 +201,7 @@ void GPSDog::createStatusSMS()
     // convert value
     this->getLatitude(lat, 12);
     this->getLongitude(lat, 12);
-    this->getSpeed(speed, 12);
+    this->getSpeed(speed, 7);
 
     ////
     // Copy status
@@ -238,6 +238,9 @@ void GPSDog::createDefaultSMS(uint8_t msgOpt)
         case GPSDOG_OPT_SMS_UNKNOWN :
             strncpy_P(m_message, GPSDOG_SMS_UNKNOWN, m_messageSize);
             break;
+        case GPSDOG_OPT_SMS_INIT :
+            strncpy_P(m_message, GPSDOG_SMS_INIT, m_messageSize);
+            break;
     }
 }
 
@@ -251,6 +254,20 @@ bool GPSDog::parseOnOff(uint8_t idx)
     }
 
     return false;
+}
+
+void GPSDog::textOnOff(char *buffer, uint8_t size, bool onOff)
+{
+    // init buffer
+    memset(buffer, 0x00, size);
+
+    // Generate text for alarm Notify
+    if (onOff) {
+        strncpy_P(buffer, GPSDOG_TXT_ON, size -1);
+    }
+    else {
+        strncpy_P(buffer, GPSDOG_TXT_OFF, size -1);
+    }
 }
 
 void GPSDog::readModeFromSMS(uint8_t mode)
@@ -290,6 +307,7 @@ void GPSDog::readInitFromSMS()
 
     // write config
     this->writeConfig();
+    this->createDefaultSMS(GPSDOG_OPT_SMS_INIT);
     return;
 
 Error:
@@ -356,17 +374,9 @@ void GPSDog::readStoreFromSMS()
     else if (strncmp_P(cmd, GPSDOG_TXT_SHOW, 4) == 0) {
         char onOff[4];
 
-        // init buffer
-        memset(onOff, 0x00, 4);
-
-        // Generate text for alarm Notify
-        if (this->isAlarmNotifyOn(idx)) {
-            strncpy_P(onOff, GPSDOG_TXT_ON, 3);
-        }
-        else {
-            strncpy_P(onOff, GPSDOG_TXT_OFF, 3);
-        }
-
+        // init notify txt
+        this->textOnOff(onOff, 4, this->isAlarmNotifyOn(idx));
+        
         // write
         snprintf_P(m_message, m_messageSize, GPSDOG_SMS_STORESHOW, m_numbers[idx], onOff);
         return;

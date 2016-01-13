@@ -32,6 +32,7 @@
 #define GPSDOG_SMS_DONE PSTR("Done")
 #define GPSDOG_SMS_UNKNOWN PSTR("Command unknown!")
 #define GPSDOG_SMS_SYSERROR PSTR("System Error!")
+#define GPSDOG_SMS_INIT PSTR("GPSDog is ready to use")
 #define GPSDOG_SMS_STATUS PSTR("State: %s\x0D\x0A" \
                                "Lat: %s\x0D\x0A" \
                                "Long: %s\x0D\x0A" \
@@ -43,6 +44,7 @@
 #define GPSDOG_OPT_SMS_DONE 0x01
 #define GPSDOG_OPT_SMS_ERROR 0x02
 #define GPSDOG_OPT_SMS_UNKNOWN 0x03
+#define GPSDOG_OPT_SMS_INIT 0x04
 
 // config
 #define GPSDOG_TRY_SENDSMS 3
@@ -109,6 +111,11 @@ class GPSDog :
          *
          */
         bool parseOnOff(uint8_t idx);
+
+        /**
+         *
+         */
+        void textOnOff(char *buffer, uint8_t size, bool onOff);
 
         /**
          *

@@ -22,7 +22,7 @@ uint8_t GDGps::getLatitude(char *buffer, uint8_t size)
     size_t count;
 
     // check buffer size are okay
-    if (size < 11) {
+    if (size < 12) {
         return 0;
     }
 
@@ -37,7 +37,7 @@ uint8_t GDGps::getLongitude(char *buffer, uint8_t size)
     size_t count;
 
     // check buffer size are okay
-    if (size < 11) {
+    if (size < 12) {
         return 0;
     }
 
@@ -52,7 +52,7 @@ uint8_t GDGps::getSpeed(char *buffer, uint8_t size)
     size_t count;
 
     // check buffer size are okay
-    if (size < 6) {
+    if (size < 7) {
         return 0;
     }
 

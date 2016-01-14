@@ -341,7 +341,7 @@ void GPSDog::readStoreFromSMS()
     char    *cmd    = this->getParseElementUpper(2);
 
     // Store number in range
-    if (idx >= GPSDOG_CONF_NUMBER_STORE) {
+    if (idx >= GPSDOG_CONF_NUMBER_STORE || idx < 0x00) {
         goto Error;
     }
 

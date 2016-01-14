@@ -65,7 +65,7 @@ void GDConfig::cleanConfig()
 bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num)
 {
     // index secure
-    if (strlen(num) > GPSDOG_CONF_NUM_SIZE || numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
+    if (strlen(num) > GPSDOG_CONF_NUM_SIZE || numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
         return false;
     }
 
@@ -81,7 +81,7 @@ bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num)
 bool GDConfig::checkStoreNumber(uint8_t numStoreIdx, char *num)
 {
     // index secure
-    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
+    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
         return false;
     }
 
@@ -111,7 +111,7 @@ bool GDConfig::foundNumberInStore(char *num)
 bool GDConfig::addNumberWithNotify(uint8_t numStoreIdx, char *num, bool notify)
 {
     // index secure
-    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
+    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
         return false;
     }
 
@@ -129,7 +129,7 @@ bool GDConfig::addNumberWithNotify(uint8_t numStoreIdx, char *num, bool notify)
 bool GDConfig::isAlarmNotifyOn(uint8_t numStoreIdx)
 {
     // index secure
-    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
+    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
         return false;
     }
 
@@ -145,7 +145,7 @@ void GDConfig::setAlarmNotify(uint8_t numStoreIdx, bool onOff)
     uint8_t mask = numStoreIdx * 2;
 
     // index secure
-    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE) {
+    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
         return;
     }
 

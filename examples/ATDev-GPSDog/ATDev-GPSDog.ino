@@ -64,6 +64,9 @@ bool sendSMS()
 
 void receiveGPS()
 {
+  char date[11];
+  char time[6];
+  
   // modem response
   if (modem.isReady() != ATDEV_OK) {
     return;
@@ -71,12 +74,32 @@ void receiveGPS()
   
   if (modem.receiveGPS() == ATDEV_OK) {
 
+    // convert date
+    date[0] = modem.m_gpsData.m_date[0];
+    date[1] = modem.m_gpsData.m_date[1];
+    date[2] = modem.m_gpsData.m_date[2];
+    date[3] = modem.m_gpsData.m_date[3];
+    date[4] = 0x2D;
+    date[5] = modem.m_gpsData.m_date[4];
+    date[6] = modem.m_gpsData.m_date[5];
+    date[7] = 0x2D;
+    date[8] = modem.m_gpsData.m_date[6];
+    date[9] = modem.m_gpsData.m_date[7];
+    date[10] = 0x00;
+
+    // convert time
+    time[0] = modem.m_gpsData.m_time[0];
+    time[1] = modem.m_gpsData.m_time[1];
+    time[2] = 0x3A;
+    time[3] = modem.m_gpsData.m_time[2];
+    time[4] = modem.m_gpsData.m_time[3];
+    time[5] = 0x00;
+    
     // update GPS Data on GPSDog
     gpsDog.updateGPSData(modem.m_gpsData.m_latitude,
                          modem.m_gpsData.m_longitude,
                          modem.m_gpsData.m_speed,
-                         modem.m_gpsData.m_date,
-                         modem.m_gpsData.m_time);
+                         date, time);
   }
 }
 

@@ -46,17 +46,16 @@ void GDConfig::writeConfig()
 
 void GDConfig::cleanConfig()
 {
-    m_data.m_version = GPSDOG_CONF_VERSION;
+    /* Def values */
+    m_data.m_version        = GPSDOG_CONF_VERSION;
+    m_data.m_alarmInterval  = GPSDOG_CONF_ALARM_INTERVAL;
 
     // options
     m_data.m_mode           ^= m_data.m_mode;
     m_data.m_alarmNumbers   ^= m_data.m_alarmNumbers;
 
     // phone store
-    memset(m_data.m_number1, 0x00, GPSDOG_CONF_NUM_SIZE +1);
-    memset(m_data.m_number2, 0x00, GPSDOG_CONF_NUM_SIZE +1);
-    memset(m_data.m_number3, 0x00, GPSDOG_CONF_NUM_SIZE +1);
-    memset(m_data.m_number4, 0x00, GPSDOG_CONF_NUM_SIZE +1);
+    memset(m_data.m_number1, 0x00, (GPSDOG_CONF_NUM_SIZE +1) * GPSDOG_CONF_NUMBER_STORE);
 
     // pw
     memset(m_data.m_password, 0x00, GPSDOG_CONF_PW_SIZE +1);

@@ -39,7 +39,7 @@ void GPSDog::mainProcessing()
         // if Alarm mode is on
         if (this->isModeOn(GPSDOG_MODE_ALARM)) {
             // Time to new send a alarm
-            if (m_nextAlarmSMS == millis()) {
+            if (m_nextAlarmSMS <= millis()) {
                 this->sendAlarmSMS();
             }
         }
@@ -93,18 +93,32 @@ void GPSDog::processIncomingSMS()
     else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_STORE, 5) && count >= 2) {
         this->readStoreFromSMS();
     }
-    // ALARM ON/OFF
+    // INTERVAL min
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_INTERVAL, 8) && count == 1) {
+        this->readIntervalFromSMS();
+    }
+    // ALARM ON/OFF/?
     else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_ALARM, 5) && count == 1) {
         this->readModeFromSMS(GPSDOG_MODE_ALARM);
     }
-    // WATCH ON/OFF
+    // WATCH ON/OFF/?
     else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_WATCH, 5) && count == 1) {
         this->readModeFromSMS(GPSDOG_MODE_WATCH);
     }
-    // PROTECT ON/OFF
+    // PROTECT ON/OFF/?
     else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_PROTECT, 7) && count == 1) {
         this->readModeFromSMS(GPSDOG_MODE_PROTECT);
     }
+    // STOP
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_STOP, 4) && count == 0) {
+        // Stop ALARM & WATCH
+        this->setMode(GPSDOG_MODE_ALARM, false);
+        this->setMode(GPSDOG_MODE_WATCH, false);
+
+        this->writeConfig();
+        this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
+    }
+    // Unknown command
     else {
         this->createDefaultSMS(GPSDOG_OPT_SMS_UNKNOWN);
     }
@@ -173,16 +187,17 @@ void GPSDog::sendAlarmSMS()
 
 void GPSDog::calcNextAlarm()
 {
-    uint16_t    now = millis();
+    uint16_t    now         = millis();
+    uint16_t    interVal    = this->getAlarmInterval() * 60 * 1000;
 
     // test of overloaded millis
-    if (now + GPSDOG_ALARM_INTERVAL < now) {
+    if (now + interVal < now) {
         // calc overloaded interval
-        m_nextAlarmSMS = now - (0xFFFF - GPSDOG_ALARM_INTERVAL);
+        m_nextAlarmSMS = now - (0xFFFF - interVal);
     }
     else {
         // calc normal interval
-        m_nextAlarmSMS = now + GPSDOG_ALARM_INTERVAL;
+        m_nextAlarmSMS = now + interVal;
     }
 }
 
@@ -244,6 +259,17 @@ void GPSDog::createDefaultSMS(uint8_t msgOpt)
     }
 }
 
+void GPSDog::createModeStateSMS(uint8_t mode)
+{
+    // init buffer sms text
+    if (!this->cleanSMS()) {
+        return;
+    }
+
+    // init notify txt
+    this->textOnOff(m_message, m_messageSize, this->isModeOn(mode));
+}
+
 bool GPSDog::parseOnOff(uint8_t idx)
 {
     char *onOff = this->getParseElementUpper(idx);
@@ -272,6 +298,16 @@ void GPSDog::textOnOff(char *buffer, uint8_t size, bool onOff)
 
 void GPSDog::readModeFromSMS(uint8_t mode)
 {
+    char *opt = this->getParseElement(1);
+
+    ////
+    // Ask status an give a answer
+    if (opt[0] == GPSDOG_CHAR_ASK) {
+        this->createModeStateSMS(mode);
+        return;
+    }
+
+    ////
     // set mode
     this->setMode(mode, this->parseOnOff(1));
 
@@ -332,6 +368,17 @@ void GPSDog::readResetFromSMS()
     this->writeConfig();
 
     // end
+    this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
+}
+
+void GPSDog::readIntervalFromSMS()
+{
+    uint8_t min     = atoi(this->getParseElement(1));
+
+    // set interval & save
+    this->setAlarmInterval(min);
+    this->writeConfig();
+
     this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
 }
 

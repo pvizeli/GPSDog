@@ -46,7 +46,7 @@ class GDGps
 
         /**
          * Convert Latitude to a string.
-         * Buffer Size need to 11 char without '0'.
+         * Buffer Size need to 12 char with '0'.
          *
          * @param buffer            Buffer to Copy latitude
          * @param size              Max Size of buffer
@@ -56,7 +56,7 @@ class GDGps
 
         /**
          * Convert longitude to a string.
-         * Buffer Size need to 11 char without '0'.
+         * Buffer Size need to 12 char with '0'.
          *
          * @param buffer            Buffer to Copy longitude
          * @param size              Max Size of buffer
@@ -66,7 +66,7 @@ class GDGps
 
         /**
          * Convert speed to a string.
-         * Buffer Size need to 6 char without '0'.
+         * Buffer Size need to 7 char with '0'.
          *
          * @param buffer            Buffer to Copy speed
          * @param size              Max Size of buffer

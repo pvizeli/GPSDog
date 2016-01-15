@@ -8,7 +8,7 @@
 #include <ctype.h>
 
 /**
- * Object for store sms data
+ * Object for process sms data
  */
 class GDSms
 {

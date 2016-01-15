@@ -10,7 +10,7 @@ Arduino 3G / GPS watch guard for movable objects
 - ```STORE idx ADD number ON/OFF```
 - ```STORE idx DEL```
 - ```STORE idx SHOW```
-- ```WATCH ON/OFF```
-- ```PROTECT ON/OFF```
-- ```ALARM ON/OFF```
+- ```WATCH ON/OFF/?```
+- ```PROTECT ON/OFF/?```
+- ```ALARM ON/OFF/?```
 - ```STOP```

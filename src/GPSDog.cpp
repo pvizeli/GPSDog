@@ -6,16 +6,20 @@
 GPSDog::GPSDog()
 {
     m_isInit        = false;
-    m_nextAlarmSMS  ^= m_nextAlarmSMS;
+    m_alarmOverload = false;
+
+    m_nextAlarmSMS      ^= m_nextAlarmSMS;
+    m_alarmStartTime    ^= m_alarmStartTime;
 }
         
 void GPSDog::initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReceiveGPS)())
 {
     // init data
-    m_number        = smsNum;
-    m_numberSize    = smsNumSize;
-    m_message       = smsTxt;
-    m_messageSize   = smsTxtSize;
+    m_number            = smsNum;
+    m_numberSize        = smsNumSize;
+    m_message           = smsTxt;
+    m_messageSize       = smsTxtSize;
+    
 
     // callbacks
     cb_sendSMS          = cbSendSMS;
@@ -23,7 +27,7 @@ void GPSDog::initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t 
     cb_receiveGPS       = cbReceiveGPS;
 
     // set init flag
-    m_isInit        = true;
+    m_isInit            = true;
 }
 
 void GPSDog::mainProcessing()
@@ -39,7 +43,7 @@ void GPSDog::mainProcessing()
         // if Alarm mode is on
         if (this->isModeOn(GPSDOG_MODE_ALARM)) {
             // Time to new send a alarm
-            if (m_nextAlarmSMS <= millis()) {
+            if (m_nextAlarmSMS <= millis() && !m_alarmOverload) {
                 this->sendAlarmSMS();
             }
         }
@@ -52,6 +56,13 @@ void GPSDog::mainProcessing()
 
         // wait for next process
         delay(GPSDOG_WAIT_PROCESSING);
+
+        // Check Alarm Overloaded
+        if (m_alarmOverload) {
+            if (m_alarmStartTime > millis()) {
+                m_alarmOverload = false;
+            }
+        }
     }
 }
 
@@ -187,17 +198,17 @@ void GPSDog::sendAlarmSMS()
 
 void GPSDog::calcNextAlarm()
 {
-    uint16_t    now         = millis();
     uint16_t    interVal    = this->getAlarmInterval() * 60 * 1000;
 
-    // test of overloaded millis
-    if (now + interVal < now) {
-        // calc overloaded interval
-        m_nextAlarmSMS = now - (0xFFFF - interVal);
+    m_alarmStartTime    = millis();
+    m_nextAlarmSMS      = m_alarmStartTime + interVal;
+
+    // overloaded
+    if (m_nextAlarmSMS < m_alarmStartTime) {
+       m_alarmOverload = true;
     }
     else {
-        // calc normal interval
-        m_nextAlarmSMS = now + interVal;
+       m_alarmOverload = false;
     }
 }
 

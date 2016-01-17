@@ -70,7 +70,9 @@ class GPSDog :
         bool        m_isInit;
 
         /** Millis value of next alarm processing */
-        uint16_t    m_nextAlarmSMS;
+        uint32_t    m_nextAlarmSMS;
+        uint32_t    m_alarmStartTime;
+        bool        m_alarmOverload;
 
         /**
          * Callback for sending SMS with GPSDog.

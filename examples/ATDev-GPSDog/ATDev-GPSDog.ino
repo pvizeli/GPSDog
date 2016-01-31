@@ -105,7 +105,7 @@ void receiveGPS()
 
 void checkSMS()
 {
-  uint8_t storeIdx;
+  uint16_t storeIdx;
   
   // modem response
   if (modem.isReady() != ATDEV_OK) {

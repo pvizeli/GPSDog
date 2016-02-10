@@ -45,6 +45,9 @@ struct GD_DATA
     /** Holding notify information for number in store (Binary) */
     uint8_t m_alarmNumbers;
 
+    /** Save sign count per phone number */
+    uint8_t m_signNums[GPSDOG_CONF_NUMBER_STORE];
+
     /** Store for numbers they have full access to GPSDog */
     char    m_number1[GPSDOG_CONF_NUM_SIZE +1];
     char    m_number2[GPSDOG_CONF_NUM_SIZE +1];
@@ -92,9 +95,10 @@ class GDConfig
          * 
          * @param numStoreIdx           Index of config store number.
          * @param num                   Number to store
+         * @param sign                  Sign for this number
          * @return                      TRUE / FALSE if number store
          */
-        bool setStoreNumber(uint8_t numStoreIdx, char *num);
+        bool setStoreNumber(uint8_t numStoreIdx, char *num, uint8_t sign);
 
         /**
          * Check is the number equal to the number in config store.
@@ -118,10 +122,19 @@ class GDConfig
          *
          * @param numStoreIdx           Index of config store number.
          * @param num                   Number they will store
+         * @param sign                  Sign for this number
          * @param notify                TRUE/FALSE for ON/OFF alarm notify
          * @return                      TRUE if success
          */
-        bool addNumberWithNotify(uint8_t numStoreIdx, char *num, bool notify);
+        bool addNumberWithNotify(uint8_t numStoreIdx, char *num, uint8_t sign, bool notify);
+
+        /**
+         * Get the sign from the number.
+         *
+         * @param numStoreIdx           Index of config store number.
+         * @return                      The sign of this number
+         */
+        uint8_t getSignNumber(uint8_t numStoreIdx);
 
         /**
          * Check is alarm notify active on config store number.

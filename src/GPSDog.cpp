@@ -90,15 +90,15 @@ void GPSDog::processIncomingSMS()
             this->createStatusSMS();
         }
     }
-    // INIT pw number ON/OFF
-    else if (strncmp_P(smsCmd, GPSDOG_TXT_INIT, 4) && count == 3) {
+    // INIT pw number sign ON/OFF
+    else if (strncmp_P(smsCmd, GPSDOG_TXT_INIT, 4) && count == 4) {
         this->readInitFromSMS();
     }
     // RESET pw
     else if (strncmp_P(smsCmd, GPSDOG_TXT_RESET, 5) && count == 1) {
         this->readResetFromSMS();
     }
-    // STORE num ADD number ON/OFF
+    // STORE num ADD number sign ON/OFF
     // STORE num DEL
     // STORE num SHOW
     else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_STORE, 5) && count >= 2) {
@@ -244,7 +244,7 @@ void GPSDog::createStatusSMS()
 
     ////
     // create SMS Text
-    snprintf_P(m_message, m_messageSize, GPSDOG_SMS_STATUS, stat, lat, lon, speed, m_date, m_time, lat, lon);
+    snprintf_P(m_message, m_messageSize -1, GPSDOG_SMS_STATUS, stat, lat, lon, speed, m_date, m_time, lat, lon);
 }
 
 void GPSDog::createDefaultSMS(uint8_t msgOpt)
@@ -256,16 +256,16 @@ void GPSDog::createDefaultSMS(uint8_t msgOpt)
 
     switch (msgOpt) {
         case GPSDOG_OPT_SMS_DONE :
-            strncpy_P(m_message, GPSDOG_SMS_DONE, m_messageSize);
+            strncpy_P(m_message, GPSDOG_SMS_DONE, m_messageSize -1);
             break;
         case GPSDOG_OPT_SMS_ERROR :
-            strncpy_P(m_message, GPSDOG_SMS_SYSERROR, m_messageSize);
+            strncpy_P(m_message, GPSDOG_SMS_SYSERROR, m_messageSize -1);
             break;
         case GPSDOG_OPT_SMS_UNKNOWN :
-            strncpy_P(m_message, GPSDOG_SMS_UNKNOWN, m_messageSize);
+            strncpy_P(m_message, GPSDOG_SMS_UNKNOWN, m_messageSize -1);
             break;
         case GPSDOG_OPT_SMS_INIT :
-            strncpy_P(m_message, GPSDOG_SMS_INIT, m_messageSize);
+            strncpy_P(m_message, GPSDOG_SMS_INIT, m_messageSize -1);
             break;
     }
 }
@@ -278,7 +278,7 @@ void GPSDog::createModeStateSMS(uint8_t mode)
     }
 
     // init notify txt
-    this->textOnOff(m_message, m_messageSize, this->isModeOn(mode));
+    this->textOnOff(m_message, m_messageSize -1, this->isModeOn(mode));
 }
 
 bool GPSDog::parseOnOff(uint8_t idx)
@@ -333,9 +333,10 @@ void GPSDog::readModeFromSMS(uint8_t mode)
 
 void GPSDog::readInitFromSMS()
 {
-    char *pw            = this->getParseElement(1);
-    char *number        = this->getParseElement(2);
-    bool alarmNotify    = this->parseOnOff(3);
+    char    *pw         = this->getParseElement(1);
+    char    *number     = this->getParseElement(2);
+    uint8_t sign        = atoi(this->getParseElement(3));
+    bool    alarmNotify = this->parseOnOff(4);
 
     // allready init
     if (this->isModeOn(GPSDOG_MODE_INIT)) {
@@ -343,7 +344,7 @@ void GPSDog::readInitFromSMS()
     }
 
     // set number to first store
-    if (!this->addNumberWithNotify(0, number, alarmNotify)) {
+    if (!this->addNumberWithNotify(0, number, sign, alarmNotify)) {
         goto Error;
     }
 
@@ -403,13 +404,14 @@ void GPSDog::readStoreFromSMS()
         goto Error;
     }
 
-    // STORE num ADD number ON/OFF
-    if (strncmp_P(cmd, GPSDOG_TXT_ADD, 3) == 0) {
-        char *number   = this->getParseElement(3);
-        bool notify    = this->parseOnOff(4);
+    // STORE num ADD number sign ON/OFF
+    if (strncmp_P(cmd, GPSDOG_TXT_ADD, 3) == 0 && m_lastParamCount == 5) {
+        char    *number = this->getParseElement(3);
+        uint8_t sign    = atoi(this->getParseElement(4));
+        bool    notify  = this->parseOnOff(5);
     
         // Ckeck number is set
-        if (number == NULL || !this->addNumberWithNotify(idx, number, notify)) {
+        if (!this->addNumberWithNotify(idx, number, sign, notify)) {
             goto Error;
         }
        
@@ -418,7 +420,7 @@ void GPSDog::readStoreFromSMS()
         return;
     }
     // STORE num DEL
-    else if (strncmp_P(cmd, GPSDOG_TXT_DEL, 3) == 0) {
+    else if (strncmp_P(cmd, GPSDOG_TXT_DEL, 3) == 0 && m_lastParamCount == 2) {
         // clean number
         memset(m_numbers[idx], 0x00, GPSDOG_CONF_NUM_SIZE +1);
         this->setAlarmNotify(idx, false);
@@ -429,14 +431,15 @@ void GPSDog::readStoreFromSMS()
         return;
     }
     // STORE num SHOW
-    else if (strncmp_P(cmd, GPSDOG_TXT_SHOW, 4) == 0) {
-        char onOff[4];
+    else if (strncmp_P(cmd, GPSDOG_TXT_SHOW, 4) == 0 && m_lastParamCount == 2) {
+        char    onOff[4];
+        uint8_t sign        = this->getSignNumber(idx);
 
         // init notify txt
         this->textOnOff(onOff, 4, this->isAlarmNotifyOn(idx));
         
         // write
-        snprintf_P(m_message, m_messageSize, GPSDOG_SMS_STORESHOW, m_numbers[idx], onOff);
+        snprintf_P(m_message, m_messageSize -1, GPSDOG_SMS_STORESHOW, m_numbers[idx], sign, onOff);
         return;
     }
 

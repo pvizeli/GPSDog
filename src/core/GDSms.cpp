@@ -3,11 +3,12 @@
 
 GDSms::GDSms()
 {
-    m_number        = NULL;
-    m_message       = NULL;
+    m_number            = NULL;
+    m_message           = NULL;
 
-    m_numberSize    ^= m_numberSize;
-    m_messageSize   ^= m_messageSize;
+    m_numberSize        ^= m_numberSize;
+    m_messageSize       ^= m_messageSize;
+    m_lastParamCount    ^= m_lastParamCount;
 }
 
 bool GDSms::isReady()
@@ -50,7 +51,7 @@ uint8_t GDSms::parseSMSMessage()
 
     // buffer is set
     if (m_message == NULL) {
-        return params;
+        return m_lastParamCount = params;
     }
 
     // search hole string
@@ -58,7 +59,7 @@ uint8_t GDSms::parseSMSMessage()
 
         // end
         if (m_message[i] == 0x00) {
-            return params;
+            return m_lastParamCount = params;
         }
         // ' ' replace with '\0'
         else if (m_message[i] == 0x00) {
@@ -71,7 +72,7 @@ uint8_t GDSms::parseSMSMessage()
         }
     }
 
-    return params;
+    return m_lastParamCount = params;
 }
 
 char* GDSms::getParseElement(uint8_t idx)

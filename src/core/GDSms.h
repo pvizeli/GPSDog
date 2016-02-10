@@ -25,8 +25,11 @@ class GDSms
         /** SMS body string */
         char    *m_message;
 
-        /** */
+        /** SMS body buffer size */
         uint8_t m_messageSize;
+
+        /** Last count number from @see parseSMSMessage */
+        uint8_t m_lastParamCount;
 
         /**
          * Cleaning SMS Text Data buffer.

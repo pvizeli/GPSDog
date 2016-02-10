@@ -54,6 +54,9 @@ void GDConfig::cleanConfig()
     m_data.m_mode           ^= m_data.m_mode;
     m_data.m_alarmNumbers   ^= m_data.m_alarmNumbers;
 
+    // sign
+    memset(m_data.m_signNums, 0x00, GPSDOG_CONF_NUMBER_STORE);
+
     // phone store
     memset(m_data.m_number1, 0x00, (GPSDOG_CONF_NUM_SIZE +1) * GPSDOG_CONF_NUMBER_STORE);
 
@@ -61,18 +64,18 @@ void GDConfig::cleanConfig()
     memset(m_data.m_password, 0x00, GPSDOG_CONF_PW_SIZE +1);
 }
 
-bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num)
+bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num, uint8_t sign)
 {
-    // index secure
-    if (strlen(num) > GPSDOG_CONF_NUM_SIZE || numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
+    // index secure & sign not lager than num
+    if (strlen(num) > GPSDOG_CONF_NUM_SIZE || numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0 || strlen(num) <= sign) {
         return false;
     }
 
-    // clear
+    // clear & copy
     memset(m_numbers[numStoreIdx], 0x00, GPSDOG_CONF_NUM_SIZE +1);
-   
-    // copy
     strncpy(m_numbers[numStoreIdx], num, GPSDOG_CONF_NUM_SIZE);
+
+    m_data.m_signNums[numStoreIdx] = sign;
 
     return true;
 }
@@ -85,7 +88,7 @@ bool GDConfig::checkStoreNumber(uint8_t numStoreIdx, char *num)
     }
 
     // check number
-    if (strstr(num, m_numbers[numStoreIdx]) != NULL) {
+    if (strstr(num, m_numbers[numStoreIdx] + m_data.m_signNums[numStoreIdx]) != NULL) {
         return true;
     }
 
@@ -107,7 +110,7 @@ bool GDConfig::foundNumberInStore(char *num)
     return false;
 }
 
-bool GDConfig::addNumberWithNotify(uint8_t numStoreIdx, char *num, bool notify)
+bool GDConfig::addNumberWithNotify(uint8_t numStoreIdx, char *num, uint8_t sign, bool notify)
 {
     // index secure
     if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
@@ -115,7 +118,7 @@ bool GDConfig::addNumberWithNotify(uint8_t numStoreIdx, char *num, bool notify)
     }
 
     // set number to store
-    if (!this->setStoreNumber(numStoreIdx, num)) {
+    if (!this->setStoreNumber(numStoreIdx, num, sign)) {
         return false;
     }
 
@@ -123,6 +126,16 @@ bool GDConfig::addNumberWithNotify(uint8_t numStoreIdx, char *num, bool notify)
     this->setAlarmNotify(numStoreIdx, notify);
 
     return true;
+}
+
+uint8_t GDConfig::getSignNumber(uint8_t numStoreIdx)
+{
+    // index secure
+    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
+        return false;
+    }
+
+    return m_data.m_signNums[numStoreIdx];
 }
 
 bool GDConfig::isAlarmNotifyOn(uint8_t numStoreIdx)

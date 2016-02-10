@@ -33,6 +33,7 @@
 #define GPSDOG_TXT_OFF PSTR("OFF")
 
 #define GPSDOG_SMS_STORESHOW PSTR("Number: %s\x0D\x0A" \
+                                  "Sign: %d\x0D\x0A" \
                                   "Alarm: %S")
 #define GPSDOG_SMS_DONE PSTR("Done")
 #define GPSDOG_SMS_UNKNOWN PSTR("Command unknown!")

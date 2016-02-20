@@ -25,6 +25,7 @@
 #define GPSDOG_TXT_INIT PSTR("INIT")
 #define GPSDOG_TXT_RESET PSTR("RESET")
 #define GPSDOG_TXT_INTERVAL PSTR("INTERVAL")
+#define GPSDOG_TXT_VERSION PSTR("VERSION")
 #define GPSDOG_TXT_STOP PSTR("STOP")
 #define GPSDOG_TXT_ADD PSTR("ADD")
 #define GPSDOG_TXT_DEL PSTR("DEL")
@@ -32,25 +33,27 @@
 #define GPSDOG_TXT_ON PSTR("ON")
 #define GPSDOG_TXT_OFF PSTR("OFF")
 
-#define GPSDOG_SMS_STORESHOW PSTR("Number: %s\x0D\x0A" \
-                                  "Sign: %d\x0D\x0A" \
+#define GPSDOG_SMS_VERSION PSTR("GPSDog version: 1.0")
+#define GPSDOG_SMS_STORESHOW PSTR("Number: %s\x0A" \
+                                  "Sign: %d\x0A" \
                                   "Alarm: %S")
 #define GPSDOG_SMS_DONE PSTR("Done")
 #define GPSDOG_SMS_UNKNOWN PSTR("Command unknown!")
 #define GPSDOG_SMS_SYSERROR PSTR("System Error!")
 #define GPSDOG_SMS_INIT PSTR("GPSDog is ready to use")
-#define GPSDOG_SMS_STATUS PSTR("State: %s\x0D\x0A" \
-                               "Lat: %s\x0D\x0A" \
-                               "Long: %s\x0D\x0A" \
-                               "Speed: %s\x0D\x0A" \
-                               "Period: %s %s\x0D\x0A" \
-                               "https://www.google.com/maps?q=%s,%s")
+#define GPSDOG_SMS_STATUS PSTR("State: %s\x0A" \
+                               "Lat: %s\x0A" \
+                               "Long: %s\x0A" \
+                               "Speed: %s\x0A" \
+                               "Period: %s %s\x0A" \
+                               "https://maps.google.com/maps?q=%s,%s")
 
 // opt
 #define GPSDOG_OPT_SMS_DONE 0x01
 #define GPSDOG_OPT_SMS_ERROR 0x02
 #define GPSDOG_OPT_SMS_UNKNOWN 0x03
 #define GPSDOG_OPT_SMS_INIT 0x04
+#define GPSDOG_OPT_SMS_VERSION 0x05
 
 // config
 #define GPSDOG_TRY_SENDSMS 3

@@ -62,6 +62,10 @@ void GDConfig::cleanConfig()
 
     // pw
     memset(m_data.m_password, 0x00, GPSDOG_CONF_PW_SIZE +1);
+
+    // GPS Data
+    m_data.m_latitude   = 0;
+    m_data.m_longitude  = 0;
 }
 
 bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num, uint8_t sign)

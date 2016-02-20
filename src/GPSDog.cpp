@@ -5,8 +5,8 @@
 
 GPSDog::GPSDog()
 {
-    m_isInit        = false;
-    m_alarmOverload = false;
+    m_isInit            = false;
+    m_alarmOverload     = false;
 
     m_nextAlarmSMS      ^= m_nextAlarmSMS;
     m_alarmStartTime    ^= m_alarmStartTime;
@@ -84,44 +84,48 @@ void GPSDog::processIncomingSMS()
     // Find Master command
 
     // STATUS
-    if (strncmp_P(smsCmd, GPSDOG_TXT_STATUS, 6) && count == 0) {
+    if (strncmp_P(smsCmd, GPSDOG_TXT_STATUS, 6) == 0 && count == 0) {
         // check modus for legal number or protected is off
         if (legalNum || !this->isModeOn(GPSDOG_MODE_PROTECT)) {
             this->createStatusSMS();
         }
     }
     // INIT pw number sign ON/OFF
-    else if (strncmp_P(smsCmd, GPSDOG_TXT_INIT, 4) && count == 4) {
+    else if (strncmp_P(smsCmd, GPSDOG_TXT_INIT, 4) == 0 && count == 4) {
         this->readInitFromSMS();
     }
     // RESET pw
-    else if (strncmp_P(smsCmd, GPSDOG_TXT_RESET, 5) && count == 1) {
+    else if (strncmp_P(smsCmd, GPSDOG_TXT_RESET, 5) == 0 && count == 1) {
         this->readResetFromSMS();
     }
     // STORE num ADD number sign ON/OFF
     // STORE num DEL
     // STORE num SHOW
-    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_STORE, 5) && count >= 2) {
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_STORE, 5) == 0 && count >= 2) {
         this->readStoreFromSMS();
     }
     // INTERVAL min
-    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_INTERVAL, 8) && count == 1) {
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_INTERVAL, 8) == 0 && count == 1) {
         this->readIntervalFromSMS();
     }
+    // VERSION
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_VERSION, 7) == 0 && count == 0) {
+        this->createDefaultSMS(GPSDOG_OPT_SMS_VERSION);
+    }
     // ALARM ON/OFF/?
-    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_ALARM, 5) && count == 1) {
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_ALARM, 5) == 0 && count == 1) {
         this->readModeFromSMS(GPSDOG_MODE_ALARM);
     }
     // WATCH ON/OFF/?
-    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_WATCH, 5) && count == 1) {
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_WATCH, 5) == 0 && count == 1) {
         this->readModeFromSMS(GPSDOG_MODE_WATCH);
     }
     // PROTECT ON/OFF/?
-    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_PROTECT, 7) && count == 1) {
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_PROTECT, 7) == 0 && count == 1) {
         this->readModeFromSMS(GPSDOG_MODE_PROTECT);
     }
     // STOP
-    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_STOP, 4) && count == 0) {
+    else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_STOP, 4) == 0 && count == 0) {
         // Stop ALARM & WATCH
         this->setMode(GPSDOG_MODE_ALARM, false);
         this->setMode(GPSDOG_MODE_WATCH, false);
@@ -143,19 +147,6 @@ void GPSDog::processIncomingSMS()
 
 void GPSDog::updateGPSData(double latitude, double longitude, double speed, char *date, char *time)
 {
-    bool    newAlarm = false;
-
-    ////
-    // GPSDog Watch ON / Check of state change
-    if (this->isModeOn(GPSDOG_MODE_WATCH) && !this->isModeOn(GPSDOG_MODE_ALARM)) {
-
-        // Position change
-        if (m_latitude != latitude || m_longitude != longitude) {
-            // set Alarm
-            newAlarm = true;
-        }
-    }
-
     ////
     // Copy new Data
     m_latitude  = latitude;
@@ -165,12 +156,17 @@ void GPSDog::updateGPSData(double latitude, double longitude, double speed, char
     this->copyDateTime(date, time);
 
     ////
-    // create new alarm
-    if (newAlarm) {
-        this->setMode(GPSDOG_MODE_ALARM, true);
+    // GPSDog Watch ON / Check of state change
+    if (this->isModeOn(GPSDOG_MODE_WATCH) && !this->isModeOn(GPSDOG_MODE_ALARM)) {
 
-        // send Alarm SMS
-        this->sendAlarmSMS();
+        // Position change
+        if (!this->cmpGeoData(this->getStoreLatitude(), latitude) || !this->cmpGeoData(this->getStoreLongitude(), longitude)) {
+            
+            ////
+            // set Alarm
+            this->setMode(GPSDOG_MODE_ALARM, true);
+            this->sendAlarmSMS();
+        }
     }
 }
 
@@ -226,7 +222,7 @@ void GPSDog::createStatusSMS()
 
     // convert value
     this->getLatitude(lat, 12);
-    this->getLongitude(lat, 12);
+    this->getLongitude(lon, 12);
     this->getSpeed(speed, 7);
 
     ////
@@ -266,6 +262,9 @@ void GPSDog::createDefaultSMS(uint8_t msgOpt)
             break;
         case GPSDOG_OPT_SMS_INIT :
             strncpy_P(m_message, GPSDOG_SMS_INIT, m_messageSize -1);
+            break;
+        case GPSDOG_OPT_SMS_VERSION :
+            strncpy_P(m_message, GPSDOG_SMS_VERSION, m_messageSize -1);
             break;
     }
 }
@@ -320,12 +319,18 @@ void GPSDog::readModeFromSMS(uint8_t mode)
 
     ////
     // set mode
-    this->setMode(mode, this->parseOnOff(1));
+    bool onOff = this->parseOnOff(1);
+    this->setMode(mode, onOff);
 
-    // if mode unlike ALARM, write status change to eeprom
-    if (mode ^ GPSDOG_MODE_ALARM != 0x00) {
-        this->writeConfig();
+    ////
+    // Watch Mode on / save this GPS Data
+    if (onOff && mode == GPSDOG_MODE_WATCH) {
+        this->setStoreLatitude(m_latitude);
+        this->setStoreLongitude(m_longitude);
     }
+
+    // write status change to eeprom
+    this->writeConfig();
 
     // create SMS answer
     this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);

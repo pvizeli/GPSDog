@@ -7,6 +7,8 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "GDGps.h"
+
 // Buffer Size
 // String buffer +1
 #define GPSDOG_CONF_PW_SIZE 8
@@ -23,7 +25,7 @@
 #define GPSDOG_MODE_PROTECT 0x08
 
 // Config Version
-#define GPSDOG_CONF_VERSION 0x01
+#define GPSDOG_CONF_VERSION 0x02
 
 /**
  *
@@ -53,6 +55,10 @@ struct GD_DATA
     char    m_number2[GPSDOG_CONF_NUM_SIZE +1];
     char    m_number3[GPSDOG_CONF_NUM_SIZE +1];
     char    m_number4[GPSDOG_CONF_NUM_SIZE +1];
+
+    /** GPS Value */
+    double  m_latitude;
+    double  m_longitude;
 };
 
 /**
@@ -200,6 +206,34 @@ class GDConfig
          */
         void setAlarmInterval(uint8_t val) {
             m_data.m_alarmInterval = val;
+        }
+
+        /**
+         * Getter for GPS Latitude in config store
+         */
+        double getStoreLatitude() {
+            return m_data.m_latitude;
+        }
+
+        /**
+         * Setter for GPS Latitude in config store
+         */
+        void setStoreLatitude(double lat) {
+            m_data.m_latitude = lat;
+        }
+
+        /**
+         * Getter for GPS Longitude in config store
+         */
+        double getStoreLongitude() {
+            return m_data.m_longitude;
+        }
+
+        /**
+         * Setter for GPS Longitude in config store
+         */
+        void setStoreLongitude(double lon) {
+            m_data.m_longitude = lon;
         }
 };
 

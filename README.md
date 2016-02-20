@@ -1,6 +1,9 @@
 # GPSDog
 Arduino 3G / GPS watch guard for movable objects
 
+## Password
+Password size is max 8 and all ASCII chars without space.
+
 ## SMS commands
 
 - ```INIT password number sign ON/OFF```
@@ -14,3 +17,4 @@ Arduino 3G / GPS watch guard for movable objects
 - ```PROTECT ON/OFF/?```
 - ```ALARM ON/OFF/?```
 - ```STOP```
+- ```VERSION```

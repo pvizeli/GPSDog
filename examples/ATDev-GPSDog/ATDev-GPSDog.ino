@@ -5,7 +5,6 @@ GPSDog gpsDog;
 /**
  * AT-Device Option  
  */
-#define ATDEV_SMS_TXT_SIZE 160
 
 // SIM5218
 #define SIM5218_USE_EASYSMS
@@ -75,22 +74,22 @@ void receiveGPS()
   if (modem.receiveGPS() == ATDEV_OK) {
 
     // convert date
-    date[0] = modem.m_gpsData.m_date[0];
-    date[1] = modem.m_gpsData.m_date[1];
-    date[2] = modem.m_gpsData.m_date[2];
-    date[3] = modem.m_gpsData.m_date[3];
-    date[4] = 0x2D;
-    date[5] = modem.m_gpsData.m_date[4];
-    date[6] = modem.m_gpsData.m_date[5];
-    date[7] = 0x2D;
-    date[8] = modem.m_gpsData.m_date[6];
-    date[9] = modem.m_gpsData.m_date[7];
+    date[0] = 0x32; // 2
+    date[1] = 0x30; // 0
+    date[2] = modem.m_gpsData.m_date[4];
+    date[3] = modem.m_gpsData.m_date[5];
+    date[4] = 0x2D; // -
+    date[5] = modem.m_gpsData.m_date[0];
+    date[6] = modem.m_gpsData.m_date[1];
+    date[7] = 0x2D; // -
+    date[8] = modem.m_gpsData.m_date[2];
+    date[9] = modem.m_gpsData.m_date[3];
     date[10] = 0x00;
 
     // convert time
     time[0] = modem.m_gpsData.m_time[0];
     time[1] = modem.m_gpsData.m_time[1];
-    time[2] = 0x3A;
+    time[2] = 0x3A; // :
     time[3] = modem.m_gpsData.m_time[2];
     time[4] = modem.m_gpsData.m_time[3];
     time[5] = 0x00;
@@ -106,6 +105,7 @@ void receiveGPS()
 void checkSMS()
 {
   uint16_t storeIdx;
+  bool     hasRead     = false;
   
   // modem response
   if (modem.isReady() != ATDEV_OK) {
@@ -119,6 +119,7 @@ void checkSMS()
 
     // exists a sms
     if (storeIdx != ATDEV_SMS_NO_MSG) {
+        hasRead = true;
 
       // read sms to memorie
       if (modem.receiveSMS(storeIdx) == ATDEV_OK) {
@@ -137,7 +138,9 @@ void checkSMS()
   } while (storeIdx != ATDEV_SMS_NO_MSG);
 
   // cleanup sms storage
-  modem.deleteAllSMS(ATDEV_SMS_DEL_ALL);
+  if (hasRead) {
+    modem.deleteAllSMS(ATDEV_SMS_DEL_ALL);
+  }
 }
 
 

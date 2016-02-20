@@ -17,6 +17,17 @@
  */
 class GDGps
 {
+    protected:
+
+        /** 
+         * Remove leading space from dtostrf
+         *
+         * @param buffer            Buffer to Copy latitude
+         * @param size              Max Size of buffer
+         * @return                  Char they have written to buffer
+         */
+        uint8_t removeSpace(char *buffer, uint8_t size);
+
     public:
 
         GDGps();
@@ -30,7 +41,7 @@ class GDGps
         /** Speed */
         double m_speed;
 
-        /** Date in format YYYY-MM.DD */
+        /** Date in format YYYY-MM-DD */
         char m_date[GPSDOG_GPS_DATE_SIZE +1];
 
         /** Time in format HH:MM */
@@ -73,6 +84,15 @@ class GDGps
          * @return                  Char they have written to buffer
          */
         uint8_t getSpeed(char *buffer, uint8_t size);
+
+        /**
+         * Compare 2 GPS coordinate. 
+         *
+         * @param a                 Latitude or Longitude
+         * @param b                 Latitude or Longitude
+         * @return                  TRUE is equal
+         */
+        bool cmpGeoData(double a, double b);
 };
 
 

@@ -23,9 +23,10 @@
 #define GPSDOG_MODE_WATCH 0x02
 #define GPSDOG_MODE_ALARM 0x04
 #define GPSDOG_MODE_PROTECT 0x08
+#define GPSDOG_MODE_FORWARD 0x10
 
 // Config Version
-#define GPSDOG_CONF_VERSION 0x02
+#define GPSDOG_CONF_VERSION 0x03
 
 /**
  *
@@ -43,6 +44,9 @@ struct GD_DATA
 
     /** Interval in minutes for sending alarm notify */
     uint8_t m_alarmInterval;
+
+    /** Number in store for sms forward to */
+    uint8_t m_forwardIdx;
 
     /** Holding notify information for number in store (Binary) */
     uint8_t m_alarmNumbers;
@@ -207,6 +211,18 @@ class GDConfig
         void setAlarmInterval(uint8_t val) {
             m_data.m_alarmInterval = val;
         }
+
+         /**
+         * Get idx store number for forwarding in config store
+         */
+        uint8_t getForwardIdx() {
+            return m_data.m_forwardIdx;
+        }
+
+        /**
+         * Set idx store number for forwardin in config store
+         */
+        void setForwardIdx(uint8_t val);
 
         /**
          * Getter for GPS Latitude in config store

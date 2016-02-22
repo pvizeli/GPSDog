@@ -28,8 +28,8 @@ void GDConfig::readConfig()
         this->cleanConfig();
     }
     else {
-        // reset Alarm after reload
-        m_data.m_mode ^= GPSDOG_MODE_ALARM;
+        // reset forward after reload
+        m_data.m_mode ^= GPSDOG_MODE_FORWARD;
     }
 }
 
@@ -53,6 +53,7 @@ void GDConfig::cleanConfig()
     // options
     m_data.m_mode           ^= m_data.m_mode;
     m_data.m_alarmNumbers   ^= m_data.m_alarmNumbers;
+    m_data.m_forwardIdx     ^= m_data.m_forwardIdx;
 
     // sign
     memset(m_data.m_signNums, 0x00, GPSDOG_CONF_NUMBER_STORE);
@@ -217,6 +218,16 @@ void GDConfig::setMode(uint8_t mode, bool onOff)
         // OFF
         m_data.m_mode ^= mode; 
     }
+}
+
+void GDConfig::setForwardIdx(uint8_t val)
+{
+    // index secure
+    if (val >= GPSDOG_CONF_NUMBER_STORE || val < 0) {
+        return;
+    }
+
+    m_data.m_forwardIdx = val;
 }
 
 // vim: set sts=4 sw=4 ts=4 et:

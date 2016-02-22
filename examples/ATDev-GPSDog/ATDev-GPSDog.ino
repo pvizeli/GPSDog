@@ -14,6 +14,16 @@ GPSDog gpsDog;
 
 SIM5218 modem;
 
+/**
+ * Other stuff
+ */
+
+uint16_t storeIdx = ATDEV_SMS_NO_MSG;
+
+
+/**
+ * Arduino setup scatch
+ */
 void setup() {
   // init Modem
   modem.initialize(&Serial, 115200, 2);
@@ -31,9 +41,12 @@ void setup() {
                     static_cast<uint8_t>(ATDEV_SMS_NUM_SIZE), 
                     &(modem.m_smsData.m_message[0]), 
                     static_cast<uint8_t>(ATDEV_SMS_TXT_SIZE),
-                    &sendSMS, &checkSMS, &receiveGPS);
+                    &sendSMS, &checkSMS, &reloadSMS, &receiveGPS);
 }
 
+/**
+ * Arduino loop scatch
+ */
 void loop() {
   // processing GPSDog system
   gpsDog.mainProcessing();
@@ -104,7 +117,6 @@ void receiveGPS()
 
 void checkSMS()
 {
-  uint16_t storeIdx;
   bool     hasRead     = false;
   
   // modem response
@@ -141,6 +153,18 @@ void checkSMS()
   if (hasRead) {
     modem.deleteAllSMS(ATDEV_SMS_DEL_ALL);
   }
+
+  // reset data
+  storeIdx = ATDEV_SMS_NO_MSG;
 }
 
+void reloadSMS()
+{
+  // modem response
+  if (modem.isReady() != ATDEV_OK || storeIdx == ATDEV_SMS_NO_MSG) {
+    return;
+  }
+
+  modem.receiveSMS(storeIdx);
+}
 

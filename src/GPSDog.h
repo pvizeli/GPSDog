@@ -24,7 +24,9 @@
 #define GPSDOG_TXT_WATCH PSTR("WATCH")
 #define GPSDOG_TXT_INIT PSTR("INIT")
 #define GPSDOG_TXT_RESET PSTR("RESET")
+#define GPSDOG_TXT_SET PSTR("SET")
 #define GPSDOG_TXT_INTERVAL PSTR("INTERVAL")
+#define GPSDOG_TXT_FORWARD PSTR("FORWARD")
 #define GPSDOG_TXT_VERSION PSTR("VERSION")
 #define GPSDOG_TXT_STOP PSTR("STOP")
 #define GPSDOG_TXT_ADD PSTR("ADD")
@@ -59,6 +61,7 @@
 #define GPSDOG_TRY_SENDSMS 3
 #define GPSDOG_WAIT_SENDSMS 30000 // 30sec
 #define GPSDOG_WAIT_PROCESSING 30000 // 30sec
+#define GPSDOG_WAIT_GPSFIX 300000 // 5min
 
 /**
  * Object for GPSDog config
@@ -72,6 +75,9 @@ class GPSDog :
 
         /** All callback function and buffer are set */
         bool        m_isInit;
+
+        /** Is position correct after boot */
+        bool        m_gpsFix;
 
         /** Millis value of next alarm processing */
         uint32_t    m_nextAlarmSMS;
@@ -90,6 +96,12 @@ class GPSDog :
          * the SMS.
          */
         void (*cb_checkNewSMS)();
+
+        /**
+         * Callback for reload a SMS buffer. It use it for forward a SMS
+         * after parse the SMS boddy.
+         */
+        void (*cb_reloadSMS)();
 
         /**
          * Callback for receive GPS Data. If receive Data call 
@@ -171,9 +183,9 @@ class GPSDog :
         void readStoreFromSMS();
 
         /**
-         * Parse incoming SMS for interval functionality.
+         * Parse incoming SMS for set interval/forward functionality.
          */
-        void readIntervalFromSMS();
+        void readSetFromSMS();
 
     public:
 
@@ -188,9 +200,10 @@ class GPSDog :
          * @param smsTxtSize            Size of SMS message buffer
          * @param cbSendSMS             Callback function for send SMS
          * @param cbCheckSMS            Callback function for check new SMS
+         * @param cbRelaodSMS           Callback function for reload SMS
          * @param cbReceiveGPS          Callback function for update GPS pos
          */
-        void initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReceiveGPS)());
+        void initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReladSMS)(), void (*cbReceiveGPS)());
 
         /**
          * Main program loop.

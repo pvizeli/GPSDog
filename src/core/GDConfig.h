@@ -12,7 +12,7 @@
 // Buffer Size
 // String buffer +1
 #define GPSDOG_CONF_PW_SIZE 8
-#define GPSDOG_CONF_NUM_SIZE 10
+#define GPSDOG_CONF_NUM_SIZE 20
 
 // config
 #define GPSDOG_CONF_NUMBER_STORE 0x04

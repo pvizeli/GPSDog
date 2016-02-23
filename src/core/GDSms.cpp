@@ -47,11 +47,11 @@ bool GDSms::setNumber(char *number)
 
 uint8_t GDSms::parseSMSMessage()
 {
-    uint8_t params      = 0;
+    m_lastParamCount = 0;
 
     // buffer is set
     if (m_message == NULL) {
-        return m_lastParamCount = params;
+        return m_lastParamCount;
     }
 
     // search hole string
@@ -59,20 +59,20 @@ uint8_t GDSms::parseSMSMessage()
 
         // end
         if (m_message[i] == 0x00) {
-            return m_lastParamCount = params;
+            return m_lastParamCount;
         }
         // ' ' replace with '\0'
-        else if (m_message[i] == 0x00) {
+        else if (m_message[i] == 0x20) {
             m_message[i] = 0x00;
         }
 
         // count
-        if (m_message[i] == 0x00 && m_message[i-1] != 0x00) {
-            params++;
+        if (i > 0 && m_message[i] == 0x00 && m_message[i-1] != 0x00) {
+            m_lastParamCount++;
         }
     }
 
-    return m_lastParamCount = params;
+    return m_lastParamCount;
 }
 
 char* GDSms::getParseElement(uint8_t idx)

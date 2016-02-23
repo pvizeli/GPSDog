@@ -403,6 +403,7 @@ void GPSDog::readInitFromSMS()
     return;
 
 Error:
+    this->readConfig();
     this->createDefaultSMS(GPSDOG_OPT_SMS_ERROR);
     return;
 }
@@ -500,6 +501,7 @@ void GPSDog::readStoreFromSMS()
     }
 
 Error:
+    this->readConfig();
     this->createDefaultSMS(GPSDOG_OPT_SMS_ERROR);
     return;
 }

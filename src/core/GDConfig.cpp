@@ -88,7 +88,12 @@ bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num, uint8_t sign)
 bool GDConfig::checkStoreNumber(uint8_t numStoreIdx, char *num)
 {
     // index secure
-    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
+    if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0 || num == NULL) {
+        return false;
+    }
+
+    // check if NULL
+    if (m_numbers[numStoreIdx][m_data.m_signNums[numStoreIdx]] == 0x00 || num[0] == 0x00) {
         return false;
     }
 

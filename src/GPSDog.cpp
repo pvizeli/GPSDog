@@ -308,13 +308,23 @@ void GPSDog::createDefaultSMS(uint8_t msgOpt)
 
 void GPSDog::createModeStateSMS(uint8_t mode)
 {
+    char    modeName[8];
+    char    onOff[4];
+
+    // Init mode name
+    memset(modeName, 0x00, 8);
+    strncpy(modeName, this->getParseElement(0), 7);
+
+    // init notify txt
+    this->textOnOff(onOff, 4, this->isModeOn(mode));
+
     // init buffer sms text
     if (!this->cleanSMS()) {
         return;
     }
 
-    // init notify txt
-    this->textOnOff(m_message, m_messageSize -1, this->isModeOn(mode));
+    // generate text
+    snprintf_P(m_message, m_messageSize -1, GPSDOG_SMS_MODE, modeName, onOff);
 }
 
 bool GPSDog::parseOnOff(uint8_t idx)

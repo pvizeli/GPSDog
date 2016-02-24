@@ -27,10 +27,6 @@ void GDConfig::readConfig()
     if (m_data.m_version != GPSDOG_CONF_VERSION) {
         this->cleanConfig();
     }
-    else {
-        // reset forward after reload
-        m_data.m_mode ^= GPSDOG_MODE_FORWARD;
-    }
 }
 
 void GDConfig::writeConfig()

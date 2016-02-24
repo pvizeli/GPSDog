@@ -38,8 +38,9 @@
 #define GPSDOG_SMS_VERSION PSTR("GPSDog version: 1.0")
 #define GPSDOG_SMS_STORESHOW PSTR("Number: %s\x0A" \
                                   "Sign: %d\x0A" \
-                                  "Alarm: %S")
+                                  "Alarm: %s")
 #define GPSDOG_SMS_DONE PSTR("Done")
+#define GPSDOG_SMS_MODE PSTR("%s is %s")
 #define GPSDOG_SMS_UNKNOWN PSTR("Command unknown!")
 #define GPSDOG_SMS_SYSERROR PSTR("System Error!")
 #define GPSDOG_SMS_INIT PSTR("GPSDog is ready to use")

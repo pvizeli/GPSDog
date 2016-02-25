@@ -376,10 +376,8 @@ void GPSDog::readModeFromSMS(uint8_t mode)
         this->setStoreLongitude(m_longitude);
     }
 
-    // write status change to eeprom (not forward)
-    if (mode != GPSDOG_MODE_FORWARD) {
-        this->writeConfig();
-    }
+    // save
+    this->writeConfig();
 
     // create SMS answer
     this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);

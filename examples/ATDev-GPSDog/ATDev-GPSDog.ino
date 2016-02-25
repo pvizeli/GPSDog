@@ -87,16 +87,16 @@ void receiveGPS()
   if (modem.receiveGPS() == ATDEV_OK) {
 
     // convert date
-    date[0] = 0x32; // 2
-    date[1] = 0x30; // 0
-    date[2] = modem.m_gpsData.m_date[4];
-    date[3] = modem.m_gpsData.m_date[5];
+    date[0] = modem.m_gpsData.m_date[0];
+    date[1] = modem.m_gpsData.m_date[1];
+    date[2] = modem.m_gpsData.m_date[2];
+    date[3] = modem.m_gpsData.m_date[3];
     date[4] = 0x2D; // -
-    date[5] = modem.m_gpsData.m_date[0];
-    date[6] = modem.m_gpsData.m_date[1];
+    date[5] = modem.m_gpsData.m_date[4];
+    date[6] = modem.m_gpsData.m_date[5];
     date[7] = 0x2D; // -
-    date[8] = modem.m_gpsData.m_date[2];
-    date[9] = modem.m_gpsData.m_date[3];
+    date[8] = modem.m_gpsData.m_date[6];
+    date[9] = modem.m_gpsData.m_date[7];
     date[10] = 0x00;
 
     // convert time

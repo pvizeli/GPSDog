@@ -43,7 +43,7 @@ void GPSDog::mainProcessing()
 
         ////
         // if Alarm mode is on
-        if (this->isModeOn(GPSDOG_MODE_ALARM)) {
+        if (this->isModeOn(GPSDOG_MODE_ALARM) && m_gpsFix) {
             // Time to new send a alarm
             if (m_nextAlarmSMS <= millis() && !m_alarmOverload) {
                 this->sendAlarmSMS();
@@ -218,7 +218,7 @@ void GPSDog::sendAlarmSMS()
         // Alarm Notify is On
         if (this->isAlarmNotifyOn(i)) {
             // Send Status SMS
-            if(this->setNumber(m_numbers[i])) {
+            if (this->setNumber(m_numbers[i])) {
                 this->cb_sendSMS();
             }
         }
@@ -444,7 +444,6 @@ void GPSDog::readSetFromSMS()
     // SET INTERVAL min
     if (strncmp_P(cmd, GPSDOG_TXT_INTERVAL, 8) == 0) {
         this->setAlarmInterval(opt);
-        this->writeConfig();
     }
     // SET FORWARD idx
     else if (strncmp_P(cmd, GPSDOG_TXT_FORWARD, 7) == 0) {
@@ -456,6 +455,7 @@ void GPSDog::readSetFromSMS()
         return;
     }
 
+    this->writeConfig();
     this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
 }
 
@@ -480,9 +480,8 @@ void GPSDog::readStoreFromSMS()
             goto Error;
         }
        
-        this->writeConfig();
-        this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
-        return;
+        // end
+        goto Done;
     }
     // STORE num DEL
     else if (strncmp_P(cmd, GPSDOG_TXT_DEL, 3) == 0 && m_lastParamCount == 2) {
@@ -491,9 +490,7 @@ void GPSDog::readStoreFromSMS()
         this->setAlarmNotify(idx, false);
 
         // end
-        this->writeConfig();
-        this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
-        return;
+        goto Done;
     }
     // STORE num SHOW
     else if (strncmp_P(cmd, GPSDOG_TXT_SHOW, 4) == 0 && m_lastParamCount == 2) {
@@ -511,6 +508,11 @@ void GPSDog::readStoreFromSMS()
 Error:
     this->readConfig();
     this->createDefaultSMS(GPSDOG_OPT_SMS_ERROR);
+    return;
+
+Done:
+    this->writeConfig();
+    this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
     return;
 }
 

@@ -36,7 +36,7 @@ void GDConfig::writeConfig()
     // write
     for (uint8_t i = 0; i < sizeof(GD_DATA); )
     {
-        EEPROM.write(i++, *p++);
+        EEPROM.update(i++, *p++);
     }
 }
 
@@ -46,8 +46,14 @@ void GDConfig::cleanConfig()
     m_data.m_version        = GPSDOG_CONF_VERSION;
     m_data.m_alarmInterval  = GPSDOG_CONF_ALARM_INTERVAL;
 
+    // state
+    m_data.m_isInit         = false;
+    m_data.m_isWatch        = false;
+    m_data.m_isAlarm        = false;
+    m_data.m_isProtect      = false;
+    m_data.m_isForward      = false;
+
     // options
-    m_data.m_mode           ^= m_data.m_mode;
     m_data.m_alarmNumbers   ^= m_data.m_alarmNumbers;
     m_data.m_forwardIdx     ^= m_data.m_forwardIdx;
 
@@ -202,8 +208,13 @@ bool GDConfig::checkPassword(char *pw)
 
 bool GDConfig::isModeOn(uint8_t mode)
 {
-    if ((m_data.m_mode & mode) == mode) {
-        return true;
+    switch (mode)
+    {
+        case GPSDOG_MODE_INIT       : return m_data.m_isInit;
+        case GPSDOG_MODE_WATCH      : return m_data.m_isWatch;
+        case GPSDOG_MODE_ALARM      : return m_data.m_isAlarm;
+        case GPSDOG_MODE_PROTECT    : return m_data.m_isProtect;
+        case GPSDOG_MODE_FORWARD    : return m_data.m_isForward;
     }
 
     return false;
@@ -211,13 +222,23 @@ bool GDConfig::isModeOn(uint8_t mode)
 
 void GDConfig::setMode(uint8_t mode, bool onOff)
 {
-    if (onOff) {
-        // ON
-        m_data.m_mode |= mode;
-    }
-    else {
-        // OFF
-        m_data.m_mode ^= mode; 
+    switch (mode)
+    {
+        case GPSDOG_MODE_INIT       : 
+            m_data.m_isInit = onOff;
+            return;
+        case GPSDOG_MODE_WATCH      : 
+            m_data.m_isWatch = onOff;
+            return;
+        case GPSDOG_MODE_ALARM      : 
+            m_data.m_isAlarm = onOff;
+            return;
+        case GPSDOG_MODE_PROTECT    : 
+            m_data.m_isProtect = onOff;
+            return;
+        case GPSDOG_MODE_FORWARD    : 
+            m_data.m_isForward = onOff;
+            return;
     }
 }
 

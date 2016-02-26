@@ -21,12 +21,12 @@
 // mode
 #define GPSDOG_MODE_INIT 0x01
 #define GPSDOG_MODE_WATCH 0x02
-#define GPSDOG_MODE_ALARM 0x04
-#define GPSDOG_MODE_PROTECT 0x08
-#define GPSDOG_MODE_FORWARD 0x10
+#define GPSDOG_MODE_ALARM 0x03
+#define GPSDOG_MODE_PROTECT 0x04
+#define GPSDOG_MODE_FORWARD 0x05
 
 // Config Version
-#define GPSDOG_CONF_VERSION 0x03
+#define GPSDOG_CONF_VERSION 0x04
 
 /**
  *
@@ -36,8 +36,20 @@ struct GD_DATA
     /** Config struct version */
     uint8_t m_version;
 
-    /** Mode/State of GPSDog (Binary) */
-    uint8_t m_mode;
+    /** GPSDog mode init, is system initualize with PW */
+    bool    m_isInit;
+
+    /** GPSDog mode watch, is system in watch state */
+    bool    m_isWatch;
+
+    /** GPSDog mode alarm, is system in alarm state */
+    bool    m_isAlarm;
+
+    /** GPSDog mode protect, is system in protect state */
+    bool    m_isProtect;
+
+    /** GPSDog mode forward, is system in forward state */
+    bool    m_isForward;
 
     /** Password for branding */
     char    m_password[GPSDOG_CONF_PW_SIZE +1];
@@ -184,6 +196,7 @@ class GDConfig
          * - GPSDOG_MODE_WATCH
          * - GPSDOG_MODE_ALARM
          * - GPSDOG_MODE_PROTECT
+         * - GPSDOG_MODE_FORWARD
          *
          * @param mode                  Mode they will check
          * @return                      TRUE is active or FALSE

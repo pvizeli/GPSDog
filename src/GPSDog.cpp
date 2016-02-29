@@ -365,16 +365,38 @@ void GPSDog::readModeFromSMS(uint8_t mode)
     }
 
     ////
-    // set mode
+    // Read state
     bool onOff = this->parseOnOff(1);
-    this->setMode(mode, onOff);
 
     ////
-    // Watch Mode on / save this GPS Data
-    if (onOff && mode == GPSDOG_MODE_WATCH) {
+    // Watch Mode 
+    // on / save this GPS Data
+    if (m_gpsFix && onOff && mode == GPSDOG_MODE_WATCH) {
         this->setStoreLatitude(m_latitude);
         this->setStoreLongitude(m_longitude);
     }
+    // if GPS is not Fix, you can start watch modus
+    else if (!m_gpsFix && onOff && mode == GPSDOG_MODE_WATCH) {
+        uint32_t timeDone = GPSDOG_WAIT_GPSFIX - millis();
+
+        // Calc in sec
+        if (timeDone < 1000) {
+            timeDone = 1;
+        }
+        else {
+            timeDone /= 1000;
+        }
+
+        // generate message
+        if (this->cleanSMS()) {
+            snprintf_P(m_message, m_messageSize -1, GPSDOG_SMS_GPSFIX, timeDone);
+        }
+        return;
+    }
+
+    ////
+    // set mode
+    this->setMode(mode, onOff);
 
     // save
     this->writeConfig();

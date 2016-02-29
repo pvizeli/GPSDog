@@ -96,7 +96,7 @@ bool GDGps::cmpGeoData(double a, double b)
     }
 
     // compare with 0.0001 percent
-    if (val < 0.0001 || val == 0.0) {
+    if (val < 0.0005 || val == 0.0) {
         return true;
     }
 

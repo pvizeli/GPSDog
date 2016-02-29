@@ -50,6 +50,7 @@
                                "Speed: %s\x0A" \
                                "Period: %s %s\x0A" \
                                "https://maps.google.com/maps?q=%s,%s")
+#define GPSDOG_SMS_GPSFIX PSTR("Wait until GPS position is fix! That is in %d Sec.")
 
 // opt
 #define GPSDOG_OPT_SMS_DONE 0x01
@@ -62,7 +63,7 @@
 #define GPSDOG_TRY_SENDSMS 3
 #define GPSDOG_WAIT_SENDSMS 30000 // 30sec
 #define GPSDOG_WAIT_PROCESSING 30000 // 30sec
-#define GPSDOG_WAIT_GPSFIX 300000 // 5min
+#define GPSDOG_WAIT_GPSFIX 900000 // 15min
 
 /**
  * Object for GPSDog config

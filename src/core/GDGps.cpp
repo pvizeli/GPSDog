@@ -86,7 +86,7 @@ uint8_t GDGps::getSpeed(char *buffer, uint8_t size)
     return this->removeSpace(buffer, size);
 }
 
-bool GDGps::cmpGeoData(double a, double b)
+bool GDGps::cmpGeoData(double a, double b, double geoFix)
 {
     double val = a - b;
 
@@ -96,7 +96,7 @@ bool GDGps::cmpGeoData(double a, double b)
     }
 
     // compare with 0.0001 percent
-    if (val < 0.0005 || val == 0.0) {
+    if (val < geoFix || val == 0.0) {
         return true;
     }
 

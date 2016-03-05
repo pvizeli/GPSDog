@@ -26,7 +26,7 @@
 #define GPSDOG_MODE_FORWARD 0x05
 
 // Config Version
-#define GPSDOG_CONF_VERSION 0x04
+#define GPSDOG_CONF_VERSION 0x05
 
 /**
  *
@@ -75,6 +75,9 @@ struct GD_DATA
     /** GPS Value */
     double  m_latitude;
     double  m_longitude;
+
+    /** corrections for geo coordinat compaire */
+    double  m_geoFix;
 };
 
 /**
@@ -263,6 +266,20 @@ class GDConfig
          */
         void setStoreLongitude(double lon) {
             m_data.m_longitude = lon;
+        }
+
+        /**
+         * Getter for GPS GeoFix 
+         */
+        double getStoreGeoFix() {
+            return m_data.m_geoFix;
+        }
+
+        /**
+         * Setter for GPS GeoFix
+         */
+        void setStoreGeoFix(double geoFix) {
+            m_data.m_geoFix = geoFix;
         }
 };
 

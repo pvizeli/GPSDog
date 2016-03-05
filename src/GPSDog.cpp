@@ -122,6 +122,7 @@ void GPSDog::processIncomingSMS()
     }
     // SET INTERVAL min
     // SET FORWARD idx
+    // SET GEOFIX VAL
     else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_SET, 3) == 0 && count == 2) {
         this->readSetFromSMS();
     }
@@ -197,7 +198,7 @@ void GPSDog::updateGPSData(double latitude, double longitude, double speed, char
     if (this->isModeOn(GPSDOG_MODE_WATCH) && !this->isModeOn(GPSDOG_MODE_ALARM) && m_gpsFix) {
 
         // Position change
-        if (!this->cmpGeoData(this->getStoreLatitude(), latitude) || !this->cmpGeoData(this->getStoreLongitude(), longitude)) {
+        if (!this->cmpGeoData(this->getStoreLatitude(), latitude, this->getStoreGeoFix()) || !this->cmpGeoData(this->getStoreLongitude(), longitude, this->getStoreGeoFix())) {
             
             ////
             // set Alarm
@@ -461,15 +462,19 @@ void GPSDog::readResetFromSMS()
 void GPSDog::readSetFromSMS()
 {
     char    *cmd    = this->getParseElementUpper(1);
-    uint8_t opt     = atoi(this->getParseElement(2));
+    char    *opt    = this->getParseElement(2);
 
     // SET INTERVAL min
     if (strncmp_P(cmd, GPSDOG_TXT_INTERVAL, 8) == 0) {
-        this->setAlarmInterval(opt);
+        this->setAlarmInterval(atoi(opt));
     }
     // SET FORWARD idx
     else if (strncmp_P(cmd, GPSDOG_TXT_FORWARD, 7) == 0) {
-        this->setForwardIdx(opt -1);
+        this->setForwardIdx(atoi(opt) -1);
+    }
+    // SET GEOFIX VAL
+    else if (strncmp_P(cmd, GPSDOG_TXT_GEOFIX, 6) == 0) {
+        this->setStoreGeoFix(atof(opt));
     }
     // ERROR
     else {

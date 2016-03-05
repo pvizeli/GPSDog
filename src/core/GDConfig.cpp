@@ -69,6 +69,7 @@ void GDConfig::cleanConfig()
     // GPS Data
     m_data.m_latitude   = 0;
     m_data.m_longitude  = 0;
+    m_data.m_geoFix     = 0.0005;
 }
 
 bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num, uint8_t sign)

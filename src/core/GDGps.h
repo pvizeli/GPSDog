@@ -90,9 +90,10 @@ class GDGps
          *
          * @param a                 Latitude or Longitude
          * @param b                 Latitude or Longitude
+         * @param geoFix            Acceptable geo corrections
          * @return                  TRUE is equal
          */
-        bool cmpGeoData(double a, double b);
+        bool cmpGeoData(double a, double b, double geoFix);
 };
 
 

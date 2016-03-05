@@ -11,6 +11,7 @@ Password size is max 8 and all ASCII chars without space.
 - ```STATUS```
 - ```SET INTERVAL min```
 - ```SET FORWARD idx```
+- ```SET GEOFIX val```
 - ```STORE idx ADD number sign ON/OFF```
 - ```STORE idx DEL```
 - ```STORE idx SHOW```

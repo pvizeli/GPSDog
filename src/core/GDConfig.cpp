@@ -54,8 +54,10 @@ void GDConfig::cleanConfig()
     m_data.m_isForward      = false;
 
     // options
-    m_data.m_alarmNumbers   ^= m_data.m_alarmNumbers;
     m_data.m_forwardIdx     ^= m_data.m_forwardIdx;
+
+    // alarm
+    memset(m_data.m_alarmNumbers, 0x00, GPSDOG_CONF_NUMBER_STORE);
 
     // sign
     memset(m_data.m_signNums, 0x00, GPSDOG_CONF_NUMBER_STORE);
@@ -158,17 +160,11 @@ bool GDConfig::isAlarmNotifyOn(uint8_t numStoreIdx)
         return false;
     }
 
-    if (m_data.m_alarmNumbers & (numStoreIdx*2) != 0x00) {
-        return true;
-    }
-
-    return false;
+    return m_data.m_alarmNumbers[numStoreIdx];
 }
 
 void GDConfig::setAlarmNotify(uint8_t numStoreIdx, bool onOff)
 {
-    uint8_t mask = numStoreIdx * 2;
-
     // index secure
     if (numStoreIdx >= GPSDOG_CONF_NUMBER_STORE || numStoreIdx < 0) {
         return;
@@ -176,11 +172,11 @@ void GDConfig::setAlarmNotify(uint8_t numStoreIdx, bool onOff)
 
     if (onOff) {
         // ON
-        m_data.m_alarmNumbers |= mask;
+        m_data.m_alarmNumbers[numStoreIdx] = true;
     }
     else {
         // OFF
-        m_data.m_alarmNumbers ^= mask; 
+        m_data.m_alarmNumbers[numStoreIdx] = false; 
     }
 }
 

@@ -219,7 +219,7 @@ void GPSDog::sendAlarmSMS()
         // Alarm Notify is On
         if (this->isAlarmNotifyOn(i)) {
             // Send Status SMS
-            if (this->setNumber(m_numbers[i])) {
+            if (m_numbers[i][0] != 0x00 && this->setNumber(m_numbers[i])) {
                 this->cb_sendSMS();
             }
         }

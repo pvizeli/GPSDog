@@ -26,7 +26,7 @@
 #define GPSDOG_MODE_FORWARD 0x05
 
 // Config Version
-#define GPSDOG_CONF_VERSION 0x05
+#define GPSDOG_CONF_VERSION 0x06
 
 /**
  *
@@ -61,7 +61,7 @@ struct GD_DATA
     uint8_t m_forwardIdx;
 
     /** Holding notify information for number in store (Binary) */
-    uint8_t m_alarmNumbers;
+    bool    m_alarmNumbers[GPSDOG_CONF_NUMBER_STORE];
 
     /** Save sign count per phone number */
     uint8_t m_signNums[GPSDOG_CONF_NUMBER_STORE];

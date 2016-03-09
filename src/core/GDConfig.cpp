@@ -53,6 +53,9 @@ void GDConfig::cleanConfig()
     m_data.m_isProtect      = false;
     m_data.m_isForward      = false;
 
+    // do states
+    m_data.m_doWatchOn      = false;
+
     // options
     m_data.m_forwardIdx     ^= m_data.m_forwardIdx;
 
@@ -72,6 +75,9 @@ void GDConfig::cleanConfig()
     m_data.m_latitude   = 0;
     m_data.m_longitude  = 0;
     m_data.m_geoFix     = 0.0005;
+
+    // UNIT
+    m_data.m_unit       = GPSDOG_UNIT_KMH;
 }
 
 bool GDConfig::setStoreNumber(uint8_t numStoreIdx, char *num, uint8_t sign)
@@ -207,11 +213,15 @@ bool GDConfig::isModeOn(uint8_t mode)
 {
     switch (mode)
     {
+        // State
         case GPSDOG_MODE_INIT       : return m_data.m_isInit;
         case GPSDOG_MODE_WATCH      : return m_data.m_isWatch;
         case GPSDOG_MODE_ALARM      : return m_data.m_isAlarm;
         case GPSDOG_MODE_PROTECT    : return m_data.m_isProtect;
         case GPSDOG_MODE_FORWARD    : return m_data.m_isForward;
+
+        // Do state
+        case GPSDOG_MODE_DOWATCH    : return m_data.m_doWatchOn;
     }
 
     return false;
@@ -221,6 +231,7 @@ void GDConfig::setMode(uint8_t mode, bool onOff)
 {
     switch (mode)
     {
+        // State
         case GPSDOG_MODE_INIT       : 
             m_data.m_isInit = onOff;
             return;
@@ -235,6 +246,11 @@ void GDConfig::setMode(uint8_t mode, bool onOff)
             return;
         case GPSDOG_MODE_FORWARD    : 
             m_data.m_isForward = onOff;
+            return;
+
+        // Do state
+        case GPSDOG_MODE_DOWATCH    : 
+            m_data.m_doWatchOn = onOff;
             return;
     }
 }

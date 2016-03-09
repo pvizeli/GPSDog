@@ -35,11 +35,14 @@
 #define GPSDOG_TXT_SHOW PSTR("SHOW")
 #define GPSDOG_TXT_ON PSTR("ON")
 #define GPSDOG_TXT_OFF PSTR("OFF")
+#define GPSDOG_TXT_KMH PSTR("KMH")
+#define GPSDOG_TXT_MPH PSTR("MPH")
+#define GPSDOG_TXT_UNIT PSTR("UNIT")
 
-#define GPSDOG_SMS_VERSION PSTR("GPSDog version: 1.0")
+#define GPSDOG_SMS_VERSION PSTR("GPSDog version: 2")
 #define GPSDOG_SMS_STORESHOW PSTR("Number: %s\x0A" \
                                   "Sign: %d\x0A" \
-                                  "Alarm: %s")
+                                  "Notify: %s")
 #define GPSDOG_SMS_DONE PSTR("Done")
 #define GPSDOG_SMS_MODE PSTR("%s is %s")
 #define GPSDOG_SMS_UNKNOWN PSTR("Command unknown!")
@@ -51,7 +54,8 @@
                                "Speed: %s\x0A" \
                                "Period: %s %s\x0A" \
                                "https://maps.google.com/maps?q=%s,%s")
-#define GPSDOG_SMS_GPSFIX PSTR("Wait until GPS position is fix! That is in %d Sec.")
+#define GPSDOG_SMS_GPSFIX PSTR("It wait until GPS position is fix. That is in %d Sec.")
+#define GPSDOG_SMS_WATCH PSTR("GPSDog is now watching")
 
 // opt
 #define GPSDOG_OPT_SMS_DONE 0x01
@@ -59,12 +63,13 @@
 #define GPSDOG_OPT_SMS_UNKNOWN 0x03
 #define GPSDOG_OPT_SMS_INIT 0x04
 #define GPSDOG_OPT_SMS_VERSION 0x05
+#define GPSDOG_OPT_SMS_WATCH 0x06
 
 // config
 #define GPSDOG_TRY_SENDSMS 3
 #define GPSDOG_WAIT_SENDSMS 30000 // 30sec
 #define GPSDOG_WAIT_PROCESSING 30000 // 30sec
-#define GPSDOG_WAIT_GPSFIX 900000 // 15min
+#define GPSDOG_WAIT_GPSFIX 480000 // 8min
 
 /**
  * Object for GPSDog config
@@ -111,6 +116,11 @@ class GPSDog :
          * @see updateGPSData for precessing.
          */
         void (*cb_receiveGPS)();
+
+        /**
+         * Send a SMS text to all Numbers they have notify ON.
+         */
+        void sendNotifySMS();
 
         /**
          * Send a status alarm SMS to all number in store with active
@@ -189,6 +199,14 @@ class GPSDog :
          * Parse incoming SMS for set interval/forward functionality.
          */
         void readSetFromSMS();
+
+        /**
+         * Set the System to Watching Mode.
+         *
+         * If the position isn't fix at the moment, it set DOWATCH for later
+         * call this function. It generate also a SMS text for sending.
+         */
+        void doWatching();
 
     public:
 

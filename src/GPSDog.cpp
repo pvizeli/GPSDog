@@ -55,6 +55,18 @@ void GPSDog::mainProcessing()
         if (!m_gpsFix && millis() >= GPSDOG_WAIT_GPSFIX) {
             // wait time after boot is ok, position is fix
             m_gpsFix = true; 
+
+            // if GPSDog wait for watching out
+            if (this->isModeOn(GPSDOG_MODE_DOWATCH)) {
+                this->doWatching();
+
+                // Reset state & save
+                this->setMode(GPSDOG_MODE_DOWATCH, false);
+                this->writeConfig();
+
+                // send notify that modus is on
+                this->sendNotifySMS();
+            }
         }
 
         // update position
@@ -123,6 +135,7 @@ void GPSDog::processIncomingSMS()
     // SET INTERVAL min
     // SET FORWARD idx
     // SET GEOFIX VAL
+    // SET UNIT KMH/MPH
     else if (legalNum && strncmp_P(smsCmd, GPSDOG_TXT_SET, 3) == 0 && count == 2) {
         this->readSetFromSMS();
     }
@@ -164,7 +177,9 @@ void GPSDog::processIncomingSMS()
             this->cb_reloadSMS();
 
             // replace number
-            this->setNumber(m_numbers[this->getForwardIdx()]);
+            if (!this->setNumber(m_numbers[this->getForwardIdx()])) {
+                return;
+            }
         }
         // Not unswer to a unknown number
         else if (!legalNum) {
@@ -189,7 +204,15 @@ void GPSDog::updateGPSData(double latitude, double longitude, double speed, char
     // Copy new Data
     m_latitude  = latitude;
     m_longitude = longitude;
-    m_speed     = speed;
+
+    // KMH
+    if (this->getUnit() == GPSDOG_UNIT_KMH) {
+        m_speed     = speed * 1.6;
+    }
+    // MPH
+    else {
+        m_speed     = speed;
+    }
 
     this->copyDateTime(date, time);
 
@@ -208,22 +231,29 @@ void GPSDog::updateGPSData(double latitude, double longitude, double speed, char
     }
 }
 
+void GPSDog::sendNotifySMS()
+{
+
+    // find numbers where have a active notify
+    for (uint8_t i = 0; i < GPSDOG_CONF_NUMBER_STORE; i++) {
+
+        // Notify is On
+        if (this->isAlarmNotifyOn(i)) {
+            // Send Status SMS
+            if (this->setNumber(m_numbers[i])) {
+                this->cb_sendSMS();
+            }
+        }
+    }
+}
+
 void GPSDog::sendAlarmSMS()
 {
     // generate Status SMS Text
     this->createStatusSMS();
 
-    // find numbers where have a active alarm
-    for (uint8_t i = 0; i < GPSDOG_CONF_NUMBER_STORE; i++) {
-
-        // Alarm Notify is On
-        if (this->isAlarmNotifyOn(i)) {
-            // Send Status SMS
-            if (m_numbers[i][0] != 0x00 && this->setNumber(m_numbers[i])) {
-                this->cb_sendSMS();
-            }
-        }
-    }
+    // send SMS
+    this->sendNotifySMS();
 
     // calc next alarm SMS
     this->calcNextAlarm();
@@ -232,7 +262,7 @@ void GPSDog::sendAlarmSMS()
 
 void GPSDog::calcNextAlarm()
 {
-    uint16_t    interVal    = this->getAlarmInterval() * 60 * 1000;
+    uint32_t interVal   = this->getAlarmInterval() * 60 * 1000;
 
     m_alarmStartTime    = millis();
     m_nextAlarmSMS      = m_alarmStartTime + interVal;
@@ -304,6 +334,9 @@ void GPSDog::createDefaultSMS(uint8_t msgOpt)
         case GPSDOG_OPT_SMS_VERSION :
             strncpy_P(m_message, GPSDOG_SMS_VERSION, m_messageSize -1);
             break;
+        case GPSDOG_OPT_SMS_WATCH :
+            strncpy_P(m_message, GPSDOG_SMS_WATCH, m_messageSize -1);
+            break;
     }
 }
 
@@ -370,40 +403,19 @@ void GPSDog::readModeFromSMS(uint8_t mode)
     bool onOff = this->parseOnOff(1);
 
     ////
+    // Set mode
     // Watch Mode 
-    // on / save this GPS Data
-    if (m_gpsFix && onOff && mode == GPSDOG_MODE_WATCH) {
-        this->setStoreLatitude(m_latitude);
-        this->setStoreLongitude(m_longitude);
+    if (onOff && mode == GPSDOG_MODE_WATCH) {
+        this->doWatching();
     }
-    // if GPS is not Fix, you can start watch modus
-    else if (!m_gpsFix && onOff && mode == GPSDOG_MODE_WATCH) {
-        uint32_t timeDone = GPSDOG_WAIT_GPSFIX - millis();
-
-        // Calc in sec
-        if (timeDone < 1000) {
-            timeDone = 1;
-        }
-        else {
-            timeDone /= 1000;
-        }
-
-        // generate message
-        if (this->cleanSMS()) {
-            snprintf_P(m_message, m_messageSize -1, GPSDOG_SMS_GPSFIX, timeDone);
-        }
-        return;
+    // Default
+    else {
+        this->setMode(mode, onOff);
+        this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
     }
-
-    ////
-    // set mode
-    this->setMode(mode, onOff);
 
     // save
     this->writeConfig();
-
-    // create SMS answer
-    this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
 }
 
 void GPSDog::readInitFromSMS()
@@ -476,14 +488,35 @@ void GPSDog::readSetFromSMS()
     else if (strncmp_P(cmd, GPSDOG_TXT_GEOFIX, 6) == 0) {
         this->setStoreGeoFix(atof(opt));
     }
+    // SET UNIT KMH/MPH
+    else if (strncmp_P(cmd, GPSDOG_TXT_UNIT, 4) == 0) {
+        opt    = this->getParseElementUpper(2);
+
+        // KMH
+        if (strncmp_P(opt, GPSDOG_TXT_KMH, 3) == 0) {
+            this->setUnit(GPSDOG_UNIT_KMH);
+        }
+        // MPH
+        else if (strncmp_P(opt, GPSDOG_TXT_MPH, 3) == 0) {
+            this->setUnit(GPSDOG_UNIT_MPH);
+        }
+        // ERROR
+        else {
+            goto Error;
+        }
+    }
     // ERROR
     else {
-        this->createDefaultSMS(GPSDOG_OPT_SMS_ERROR);
-        return;
+        goto Error;
     }
 
     this->writeConfig();
     this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
+    return;
+
+Error:
+    this->createDefaultSMS(GPSDOG_OPT_SMS_ERROR);
+    return;
 }
 
 void GPSDog::readStoreFromSMS()
@@ -541,6 +574,38 @@ Done:
     this->writeConfig();
     this->createDefaultSMS(GPSDOG_OPT_SMS_DONE);
     return;
+}
+
+void GPSDog::doWatching()
+{
+    // Postion is fix / save this GPS Data
+    if (m_gpsFix) {
+        this->setStoreLatitude(m_latitude);
+        this->setStoreLongitude(m_longitude);
+
+        this->setMode(GPSDOG_MODE_WATCH, true);
+        this->createDefaultSMS(GPSDOG_OPT_SMS_WATCH);
+    }
+    // if GPS is not Fix, you can start watch modus later
+    else {
+        uint32_t timeDone = GPSDOG_WAIT_GPSFIX - millis();
+
+        // Calc in sec
+        if (timeDone < 1000) {
+            timeDone = 1;
+        }
+        else {
+            timeDone /= 1000;
+        }
+
+        // generate message
+        if (this->cleanSMS()) {
+            snprintf_P(m_message, m_messageSize -1, GPSDOG_SMS_GPSFIX, timeDone);
+        }
+
+        this->setMode(GPSDOG_MODE_DOWATCH, true);
+        return;
+    }
 }
 
 // vim: set sts=4 sw=4 ts=4 et:

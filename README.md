@@ -12,6 +12,7 @@ Password size is max 8 and all ASCII chars without space.
 - ```SET INTERVAL min```
 - ```SET FORWARD idx```
 - ```SET GEOFIX val```
+- ```SET UNIT KMH/MPH```
 - ```STORE idx ADD number sign ON/OFF```
 - ```STORE idx DEL```
 - ```STORE idx SHOW```

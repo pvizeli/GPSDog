@@ -34,7 +34,7 @@ bool GDSms::cleanSMS()
 bool GDSms::setNumber(char *number)
 {
     // check is all things okay
-    if (m_number == NULL || strlen(number) > m_numberSize) {
+    if (m_number == NULL || number[0] == 0x00 || strlen(number) > m_numberSize) {
         return false;
     }
 

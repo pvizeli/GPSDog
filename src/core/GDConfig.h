@@ -24,9 +24,14 @@
 #define GPSDOG_MODE_ALARM 0x03
 #define GPSDOG_MODE_PROTECT 0x04
 #define GPSDOG_MODE_FORWARD 0x05
+#define GPSDOG_MODE_DOWATCH 0x06
+
+// unit
+#define GPSDOG_UNIT_KMH 0x01
+#define GPSDOG_UNIT_MPH 0x02
 
 // Config Version
-#define GPSDOG_CONF_VERSION 0x06
+#define GPSDOG_CONF_VERSION 0x07
 
 /**
  *
@@ -50,6 +55,9 @@ struct GD_DATA
 
     /** GPSDog mode forward, is system in forward state */
     bool    m_isForward;
+
+    /** If you want set watch on if the GPS position is now fix */
+    bool    m_doWatchOn;
 
     /** Password for branding */
     char    m_password[GPSDOG_CONF_PW_SIZE +1];
@@ -78,6 +86,9 @@ struct GD_DATA
 
     /** corrections for geo coordinat compaire */
     double  m_geoFix;
+
+    /** KMH/MPH */
+    uint8_t m_unit;
 };
 
 /**
@@ -280,6 +291,24 @@ class GDConfig
          */
         void setStoreGeoFix(double geoFix) {
             m_data.m_geoFix = geoFix;
+        }
+
+        /**
+         * Set Units
+         *
+         * Units are:
+         * - GPSDOG_UNIT_KMH
+         * - GPSDOG_UNIT_MPH
+         */
+        void setUnit(uint8_t unit) {
+            m_data.m_unit = unit;
+        }
+
+        /**
+         * Get Unit @see setUnit.
+         */
+        uint8_t getUnit() {
+            return m_data.m_unit;
         }
 };
 

@@ -69,7 +69,7 @@
 #define GPSDOG_TRY_SENDSMS 3
 #define GPSDOG_WAIT_SENDSMS 30000 // 30sec
 #define GPSDOG_WAIT_PROCESSING 30000 // 30sec
-#define GPSDOG_WAIT_GPSFIX 480000 // 8min
+#define GPSDOG_WAIT_GPSFIX 300000 // 5min
 
 /**
  * Object for GPSDog config

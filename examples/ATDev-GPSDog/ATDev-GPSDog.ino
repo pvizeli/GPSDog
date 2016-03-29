@@ -52,26 +52,24 @@ void loop() {
   gpsDog.mainProcessing();
 }
 
-bool sendSMS()
+void sendSMS()
 {
   uint8_t state;
   
   // modem response
   if (modem.isReady() != ATDEV_OK) {
-    return false;
+    return;
   }
   // Check Network Status
   state = modem.getNetworkStatus();
 
   // Check if Network if avilable
   if (state != ATDEV_NETSTAT_REGISTERED && state != ATDEV_NETSTAT_ROAMING) {
-    return false;    
+    return;    
   }
 
   // Send SMS
-  if (modem.sendSMS() != ATDEV_OK) {
-    return false;
-  }
+  modem.sendSMS();
 }
 
 void receiveGPS()

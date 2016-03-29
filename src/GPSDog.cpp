@@ -13,7 +13,7 @@ GPSDog::GPSDog()
     m_alarmStartTime    ^= m_alarmStartTime;
 }
         
-void GPSDog::initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReloadSMS)(), void (*cbReceiveGPS)())
+void GPSDog::initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, void (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReloadSMS)(), void (*cbReceiveGPS)())
 {
     // init data
     m_number            = smsNum;
@@ -193,9 +193,7 @@ void GPSDog::processIncomingSMS()
 
     ////
     // Send Answer
-    for (uint8_t i = 0; !this->cb_sendSMS() && i < GPSDOG_TRY_SENDSMS; i++) {
-        delay(GPSDOG_WAIT_SENDSMS);
-    }
+    this->cb_sendSMS();
 }
 
 void GPSDog::updateGPSData(double latitude, double longitude, double speed, char *date, char *time)

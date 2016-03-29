@@ -66,8 +66,6 @@
 #define GPSDOG_OPT_SMS_WATCH 0x06
 
 // config
-#define GPSDOG_TRY_SENDSMS 3
-#define GPSDOG_WAIT_SENDSMS 30000 // 30sec
 #define GPSDOG_WAIT_PROCESSING 30000 // 30sec
 #define GPSDOG_WAIT_GPSFIX 300000 // 5min
 
@@ -96,7 +94,7 @@ class GPSDog :
          * Callback for sending SMS with GPSDog.
          * @return              TRUE / FALSE if message send.
          */
-        bool (*cb_sendSMS)();
+        void (*cb_sendSMS)();
 
         /**
          * Callback for check new SMS. Load every new message and
@@ -224,7 +222,7 @@ class GPSDog :
          * @param cbRelaodSMS           Callback function for reload SMS
          * @param cbReceiveGPS          Callback function for update GPS pos
          */
-        void initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, bool (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReladSMS)(), void (*cbReceiveGPS)());
+        void initialize(char *smsNum, uint8_t smsNumSize, char *smsTxt, uint8_t smsTxtSize, void (*cbSendSMS)(), void (*cbCheckSMS)(), void (*cbReladSMS)(), void (*cbReceiveGPS)());
 
         /**
          * Main program loop.

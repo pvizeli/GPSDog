@@ -224,6 +224,7 @@ void GPSDog::updateGPSData(double latitude, double longitude, double speed, char
             ////
             // set Alarm
             this->setMode(GPSDOG_MODE_ALARM, true);
+            this->writeConfig();
             this->sendAlarmSMS();
         }
     }
@@ -231,7 +232,6 @@ void GPSDog::updateGPSData(double latitude, double longitude, double speed, char
 
 void GPSDog::sendNotifySMS()
 {
-
     // find numbers where have a active notify
     for (uint8_t i = 0; i < GPSDOG_CONF_NUMBER_STORE; i++) {
 
@@ -247,20 +247,23 @@ void GPSDog::sendNotifySMS()
 
 void GPSDog::sendAlarmSMS()
 {
+    // calc next alarm SMS
+    this->calcNextAlarm();
+
     // generate Status SMS Text
     this->createStatusSMS();
 
     // send SMS
     this->sendNotifySMS();
-
-    // calc next alarm SMS
-    this->calcNextAlarm();
 }
 
 
 void GPSDog::calcNextAlarm()
 {
-    uint32_t interVal   = this->getAlarmInterval() * 60 * 1000;
+    uint32_t interVal   = static_cast<uint32_t>(this->getAlarmInterval());
+    
+    // calc milliseconds
+    interVal *= 60000;
 
     m_alarmStartTime    = millis();
     m_nextAlarmSMS      = m_alarmStartTime + interVal;

@@ -22,3 +22,10 @@ Password size is max 8 and all ASCII chars without space.
 - ```FORWARD ON/OFF/?```
 - ```STOP```
 - ```VERSION```
+
+# Hardware
+
+- Arduino uno r3
+- 3G / GPS Shield from Cooking-Hacks: https://www.cooking-hacks.com/3g-gprs-shield-for-arduino-3g-gps
+- Step-Down power supply: https://www.itead.cc/lm2596-dc-dc-buck-converter-step-down-power-module-output-1-25v-35v.html
+
